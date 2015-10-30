@@ -1,5 +1,31 @@
 var _nickname;
-var _dots;
+
+function onReceiveUpdate(msg) {
+    if (msg.type == "room") {
+        // update rooms
+        $('#room-list').empty();
+        for (var i = 0; i < msg.rooms.length; ++i) {
+            var room = msg.rooms[i];
+            var r = new Room(room.waiting, room.owner);
+            if (!room.waiting) r.player = room.player;
+            r.draw($('#room-list')[0]);
+        }
+    } else if (msg.type == "game") {
+        
+    } else if (msg.type == "msg") {
+        alert(msg.content);
+    }
+}
+
+function createRoom() {
+    onReceiveUpdate({
+        "type": "room",
+        "rooms": [{
+            "waiting": 1,
+            "owner": _nickname
+        }]
+    });
+}
 
 function validateNickname() {
     var nickname = $('#nickname-input').val();

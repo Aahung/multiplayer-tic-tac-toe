@@ -1,3 +1,7 @@
+/*
+    making game canvas center
+*/
+
 #game-block {
     position: fixed;
     top: 0;
@@ -17,4 +21,19 @@
     bottom: 0;
     left: 0;
     right: 0;
+}
+
+/* 
+    room panel 
+    hover animation
+*/
+
+.room-panel {
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, .3);
+    transition: box-shadow 0.5s ease;
+}
+
+.room-panel:hover {
+
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, .3);
 }
