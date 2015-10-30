@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+echo 'moving client codes to tomcat webapp folder'
+cp -r public/* /var/lib/tomcat7/webapps/ROOT/
