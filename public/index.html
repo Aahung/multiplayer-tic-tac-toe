@@ -1,0 +1,62 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Multiplayer Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="lib/foundation-5/css/normalize.css"/>
+    <link rel="stylesheet" href="lib/foundation-5/css/foundation.min.css"/>
+    <link rel="stylesheet" href="css/game.css"/>
+    <script src="lib/foundation-5/js/vendor/modernizr.js"></script>
+</head>
+<body>
+
+<div id="console-block" class="row">
+    <div class="large-9 columns">
+        <h1>Rooms</h1>
+        <h3>Waiting</h3>
+        <div id="waiting-block"></div>
+        <h3>Playing</h3>
+        <div id="playing-block"></div>
+    </div>
+    <div class="large-3 columns">
+        <h1>Online Users</h1>
+        <ul id="user-list"></ul>
+    </div>
+</div>
+
+<div id="game-block">
+    <div id="canvas-block" class="text-center">
+        <canvas id="myCanvas" width="400" height="400" style="box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, .2)"></canvas>
+    </div>
+</div>
+
+<div id="signup-modal" class="reveal-modal" data-reveal aria-labelledby="Sign Up" aria-hidden="true" role="dialog">
+    <h2>Hey, Wel<b>COME</b> to <u>Multi</u>Player <b>T</b>ic-<b>T</b>ac-<b>T</b>oe</h2>
+    <hr />
+    <div class="text-center">
+        <img src="images/gamepad.png" style="width: 20%; margin-bottom: 20px" />
+    </div>
+    <form id="signup-form">
+        <div class="row collapse postfix-round">
+            <div class="large-6 large-offset-3 columns">
+                <div class="row">
+                    <div class="small-9 columns">
+                        <input id="nickname-input" type="text" placeholder="Will Smiths">
+                    </div>
+                    <div class="small-3 columns">
+                        <a href="#" onclick="validateNickname()" class="button postfix">Go</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
+    </form>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<script src="lib/foundation-5/js/vendor/jquery.js"></script>
+<script src="lib/foundation-5/js/foundation.min.js"></script>
+<script src="js/game.js"></script>
+</html>
