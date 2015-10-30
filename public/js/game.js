@@ -1,4 +1,4 @@
-var _nickname = undefined;
+var _nickname;
 var _dots;
 
 function validateNickname() {
@@ -11,7 +11,11 @@ function validateNickname() {
 
     // save nickname into the browser if localstorage is available
     if(typeof(Storage) !== "undefined") {
-        localStorage.setItem('nickname', nickname);
+        try {
+            localStorage.setItem('nickname', nickname);
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     _nickname = nickname;
@@ -24,7 +28,11 @@ $(function() {
 
     // load nickname if has
     if(typeof(Storage) !== "undefined") {
-        $('#nickname-input').val(localStorage.getItem('nickname'));
+        try {
+            $('#nickname-input').val(localStorage.getItem('nickname'));
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     // modal
@@ -39,7 +47,7 @@ $(function() {
     });
 
     // input enter trigger
-    $('#nickname-input').keyup(function (e) {
+    $('#nickname-input').keypress(function (e) {
         if (e.keyCode == 13) {
             e.preventDefault();
             validateNickname();
