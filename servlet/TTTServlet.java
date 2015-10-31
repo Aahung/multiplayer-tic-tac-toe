@@ -9,8 +9,7 @@ package ee4216;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.*;
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
+import org.json.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -66,9 +65,9 @@ public class TTTServlet extends WebSocketServlet{
         public void onTextMessage(CharBuffer cb) throws IOException{
             System.out.println("Accept Message : "+ cb);
             String message = cb.toString();
-            JSONObject json = new JSONObject(genreJson);
+            JSONObject json = new JSONObject(message);
             for(TTTMessageInbound mmib: mmiList){
-                CharBuffer buffer = CharBuffer.wrap(json.get("type"));
+                CharBuffer buffer = CharBuffer.wrap(json.get("type").toString());
                 mmib.myoutbound.writeTextMessage(buffer);
                 mmib.myoutbound.flush();
             }
