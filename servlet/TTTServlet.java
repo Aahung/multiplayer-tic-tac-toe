@@ -6,6 +6,8 @@
 
 package ee4216;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -19,7 +21,8 @@ public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
 
-    public StreamInbound createWebSocketInbound(String protocol){
+    @Override
+    protected StreamInbound createWebSocketInbound(String protocol, HttpServletRequest request){
         return new TTTMessageInbound();
     }
 
