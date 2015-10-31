@@ -17,6 +17,10 @@ import org.apache.catalina.websocket.StreamInbound;
 import org.apache.catalina.websocket.WebSocketServlet;
 import org.apache.catalina.websocket.WsOutbound;
 
+import ee4216.TTTGame;
+import ee4216.TTTRoom;
+import ee4216.TTTUser;
+
 public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
