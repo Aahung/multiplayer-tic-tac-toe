@@ -53,7 +53,7 @@ public class TTTGame {
 		return getDots(PLAYER_MARK);
 	}
 
-	static int[][] lines = new int[8][3] {
+	static int[][] lines = new int[][] {
 		// row line
 		{0, 1, 2},
 		{3, 4, 5},
@@ -89,7 +89,7 @@ public class TTTGame {
 		else return 0;
 	}
 
-	private boolean do(int mark, int dotIndex) {
+	private boolean move(int mark, int dotIndex) {
 		int i = dotIndex / 3;
 		int j = dotIndex % 3;
 		if (_dots[i][j] != 0) return false;
@@ -98,11 +98,11 @@ public class TTTGame {
 	}
 
 	// return true if successfully do
-	public boolean ownerDo(int dotIndex) {
-		do(OWNER_MARK, dotIndex);
+	public boolean ownerMove(int dotIndex) {
+		return move(OWNER_MARK, dotIndex);
 	}
 
-	public boolean playerDo(int dotIndex) {
-		do(PLAYER_MARK, dotIndex);
+	public boolean playerMove(int dotIndex) {
+		return move(PLAYER_MARK, dotIndex);
 	}
 }
