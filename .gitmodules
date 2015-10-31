@@ -1,0 +1,3 @@
+[submodule "servlet/JSON-java"]
+	path = servlet/JSON-java
+	url = git@github.com:douglascrockford/JSON-java.git

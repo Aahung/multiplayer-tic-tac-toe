@@ -8,6 +8,10 @@ package ee4216;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.*;
+import org.json.JSONObject;
+import org.json.simple.JSONArray;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -20,10 +24,17 @@ import org.apache.catalina.websocket.WsOutbound;
 import ee4216.TTTGame;
 import ee4216.TTTRoom;
 import ee4216.TTTUser;
+import ee4216.TTTConsole;
 
 public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
+
+    private TTTConsole _gameConsole;
+
+    public TTTServlet() {
+        _gameConsole = new TTTConsole();
+    }
 
     @Override
     protected StreamInbound createWebSocketInbound(String protocol, HttpServletRequest request){
@@ -54,8 +65,10 @@ public class TTTServlet extends WebSocketServlet{
         @Override
         public void onTextMessage(CharBuffer cb) throws IOException{
             System.out.println("Accept Message : "+ cb);
+            String message = cb.toString();
+            JSONObject json = new JSONObject(genreJson);
             for(TTTMessageInbound mmib: mmiList){
-                CharBuffer buffer = CharBuffer.wrap(cb);
+                CharBuffer buffer = CharBuffer.wrap(json.get("type"));
                 mmib.myoutbound.writeTextMessage(buffer);
                 mmib.myoutbound.flush();
             }
