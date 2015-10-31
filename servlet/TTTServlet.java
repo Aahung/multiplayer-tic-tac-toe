@@ -70,7 +70,7 @@ public class TTTServlet extends WebSocketServlet{
             String message = cb.toString();
             JSONParser parser = new JSONParser();
             try {
-                Object obj = parser.parse(message);
+                JSONObject obj = (JSONObject)parser.parse(message);
                 for(TTTMessageInbound mmib: mmiList){
                     CharBuffer buffer = CharBuffer.wrap(obj.get("type").toString());
                     mmib.myoutbound.writeTextMessage(buffer);

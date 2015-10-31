@@ -11,5 +11,7 @@ echo '[+] deploy'
 mkdir -p $deploydir/WEB-INF
 mkdir -p $deploydir/WEB-INF/classes
 mkdir -p $deploydir/WEB-INF/classes/ee4216
+mkdir -p $deploydir/WEB-INF/lib
 cp WEB-INF/* $deploydir/WEB-INF/
 mv *.class $deploydir/WEB-INF/classes/ee4216/
+cp *.jar $deploydir/WEB-INF/lib/
