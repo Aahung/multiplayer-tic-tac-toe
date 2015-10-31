@@ -16,6 +16,7 @@ msg = {
     	"waiting": {true|false},
     	"owner": "..",
     	"player": {".."|undefined}
+    	"player": {'.."|null}   ?
     }]
 }
 ```
@@ -45,7 +46,7 @@ msg = {
 msg = {
     "type": "game",
     "subtype": "result",
-    "winner": {"owner"|"player"}
+    "winner": {"owner"|"player"|"tie"}
 }
 ```
 
@@ -53,6 +54,10 @@ msg = {
 ```json
 msg = {
     "type": "msg",
-    "content": ".."
+    "content": {"cancel"|"leave"|"pause"}
+    
+    //use cancel to end the game, room closed
+    //leave: that user wants to leave the room, room open, waiting=1
+    //pause: the user will come back soon
 }
 ```
