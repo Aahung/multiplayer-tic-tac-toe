@@ -15,7 +15,7 @@ import org.apache.catalina.websocket.StreamInbound;
 import org.apache.catalina.websocket.WebSocketServlet;
 import org.apache.catalina.websocket.WsOutbound;
 
-public class WsChatServlet extends WebSocketServlet{
+public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
 
@@ -47,7 +47,7 @@ public class WsChatServlet extends WebSocketServlet{
         @Override
         public void onTextMessage(CharBuffer cb) throws IOException{
             System.out.println("Accept Message : "+ cb);
-            for(MyMessageInbound mmib: mmiList){
+            for(TTTMessageInbound mmib: mmiList){
                 CharBuffer buffer = CharBuffer.wrap(cb);
                 mmib.myoutbound.writeTextMessage(buffer);
                 mmib.myoutbound.flush();

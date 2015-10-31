@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+currentdir=`pwd`
+export CLASSPATH=/usr/share/tomcat7/lib/servlet-api.jar:/usr/share/tomcat7/lib/jsp-api.jar:$currentdir/tomcat-catalina-7.0.27.jar:$currentdir/tomcat-coyote-7.0.27.jar
+javac TTTServlet.java
