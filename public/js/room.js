@@ -1,5 +1,6 @@
 /*
     Romm class
+    EE 4216 Group 4
 */
 
 function Room(waiting, owner) {

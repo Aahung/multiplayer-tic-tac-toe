@@ -1,3 +1,7 @@
+/*
+    main game js
+    EE 4216 Group 4
+*/
 var _nickname;
 
 function onReceiveUpdate(msg) {
