@@ -24,6 +24,10 @@ public class TTTConsole {
 		return false;
 	}
 
+	public String dumpUsers() {
+		
+	}
+
 	public TTTUser searchUser(String nickname) {
 		return null;
 	}

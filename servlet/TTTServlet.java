@@ -45,6 +45,7 @@ public class TTTServlet extends WebSocketServlet{
 
     private class TTTMessageInbound extends MessageInbound{
         WsOutbound myoutbound;
+        TTTUser user;
 
         @Override
         public void onOpen(WsOutbound outbound){
@@ -64,6 +65,8 @@ public class TTTServlet extends WebSocketServlet{
             mmiList.remove(this);
         }
 
+
+
         @Override
         public void onTextMessage(CharBuffer cb) throws IOException{
             System.out.println("Accept Message : "+ cb);
@@ -71,11 +74,24 @@ public class TTTServlet extends WebSocketServlet{
             JSONParser parser = new JSONParser();
             try {
                 JSONObject obj = (JSONObject)parser.parse(message);
-                for(TTTMessageInbound mmib: mmiList){
-                    CharBuffer buffer = CharBuffer.wrap(obj.get("type").toString());
-                    mmib.myoutbound.writeTextMessage(buffer);
-                    mmib.myoutbound.flush();
+                String type = obj.get("type").toString();
+                if (type == "init") {
+                    String nickname = obj.get("nickname").toString();
+                    // check if there is a same nickname
+                    if (_gameConsole.addUser(nickname)) {
+                        // fail
+                        outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
+                    } else {
+                        outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
+                        // broadcast user info to all users
+                        for(TTTMessageInbound mmib: mmiList){
+                            CharBuffer buffer = CharBuffer.wrap(obj.get("type").toString());
+                            mmib.myoutbound.writeTextMessage(buffer);
+                            mmib.myoutbound.flush();
+                        }
+                    }
                 }
+                
             } catch (ParseException e) {
                 System.out.println("position: " + e.getPosition());
                 System.out.println(e);
