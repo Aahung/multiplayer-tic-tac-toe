@@ -21,7 +21,9 @@
     </div>
     <div class="large-3 columns">
         <h1>Online Users</h1>
-        <ul id="user-list"></ul>
+        <ul id="user-list">
+            <!-- dynamic -->
+        </ul>
     </div>
 </div>
 
@@ -65,6 +67,12 @@
                 <p>{{=it.owner}}{{?!it.waiting}} <i>VS</i> {{=it.player}}{{?}}</p>
             </div>
         </a>
+    </li>
+</script>
+<!-- user template -->
+<script id="user-template" type="text/template">
+    <li>
+        {{=it.nickname}}-{{=it.image}}-{{=it.type}}
     </li>
 </script>
 

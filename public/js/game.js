@@ -70,7 +70,13 @@ function onReceiveMessage(msg) {
             r.draw($('#room-list')[0]);
         }
     } else if (msg.type == "user") {
-
+        // update users
+        $('#user-list').empty();
+        for (var i = 0; i < msg.users.length; ++i) {
+            var user = msg.users[i];
+            var u = new User(user.nickname, user.image, user.type);
+            r.draw($('#user-list')[0]);
+        }
     } else if (msg.type == "game") {
         
     } else if (msg.type == "msg") {
