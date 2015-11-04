@@ -32,10 +32,13 @@ public class TTTUser {
 	public JSONObject toJSONObject() {
 		JSONObject obj = new JSONObject();
 		
-		obj.put("nickname": _nickname);
-		obj.put("type": _userType);
-		obj.put("image": _imageURL);
+		obj.put("nickname", _nickname);
+		obj.put("image", _imageURL);
 
 		return obj;
+	}
+
+	public String getNickname() {
+		return _nickname;
 	}
 }

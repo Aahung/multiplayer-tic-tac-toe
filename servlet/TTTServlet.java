@@ -83,18 +83,19 @@ public class TTTServlet extends WebSocketServlet{
                     if (_gameConsole.addUser(nickname)) {
                         // fail
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
-                    } else {
-                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                         // broadcast user info to all users
 
                         JSONObject usersObj = new JSONObject();
-                        usersObj.put();
+                        usersObj.put("type", "user");
+                        usersObj.put("users", _gameConsole.dumpUsers());
 
                         for(TTTMessageInbound mmib: mmiList){
-                            CharBuffer buffer = CharBuffer.wrap();
+                            CharBuffer buffer = CharBuffer.wrap(usersObj.toString());
                             mmib.myoutbound.writeTextMessage(buffer);
                             mmib.myoutbound.flush();
                         }
+                    } else {
+                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                     }
                 }
                 

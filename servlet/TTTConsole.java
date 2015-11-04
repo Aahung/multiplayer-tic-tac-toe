@@ -23,6 +23,10 @@ public class TTTConsole {
 
 	// return true if user's nickname is available
 	public boolean addUser(String nickname) {
+		if (searchUser(nickname) == null) {
+			_users.add(new TTTUser(nickname));
+			return true;
+		}
 		return false;
 	}
 
@@ -38,6 +42,11 @@ public class TTTConsole {
 	}
 
 	public TTTUser searchUser(String nickname) {
+		for (TTTUser user: _users) {
+			if (user.getNickname().equals(nickname)) {
+				return user;
+			}
+		}
 		return null;
 	}
 
