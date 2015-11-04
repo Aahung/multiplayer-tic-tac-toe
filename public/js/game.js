@@ -2,9 +2,64 @@
     main game js
     EE 4216 Group 4
 */
-var _nickname;
 
-function onReceiveUpdate(msg) {
+/*
+    Websocket
+*/
+
+var _ws;
+
+function webSocketReady() {
+    if (_ws && _ws.readyState == 1)
+        return true;
+    initWebSocket();
+    alert("Please check your network connection.");
+    return false;
+}
+
+function webSocketSend(msg) {
+    _ws.send(JSON.stringify(msg));
+}
+
+var onWebSocketOpen = function() {
+    console.log("[WebSocket] connected.");
+};
+
+var onWebSocketClose = function() {
+    console.log("[WebSocket] disconnected.");
+};
+
+var onWebSocketMessage = function(e) {
+    console.log("[WebSocket] reveived message:");
+    console.log(e.data);
+    onReceiveMessage(JSON.parse(e.data));
+};
+
+function initWebSocket() {
+    var loc = window.location, new_uri;
+    if (loc.protocol === "https:") {
+        new_uri = "wss:";
+    } else {
+        new_uri = "ws:";
+    }
+    new_uri += "//" + loc.host;
+    new_uri += "/api";
+
+    _ws = new WebSocket(new_uri);
+
+    // setup the listeners
+    _ws.onmessage = onWebSocketMessage;
+    _ws.onopen = onWebSocketOpen;
+    _ws.onclose = onWebSocketClose;
+}
+
+/*
+    interactions
+*/
+
+var _nickname, _nicknameCandidate;
+
+function onReceiveMessage(msg) {
     if (msg.type == "room") {
         // update rooms
         $('#room-list').empty();
@@ -14,10 +69,18 @@ function onReceiveUpdate(msg) {
             if (!room.waiting) r.player = room.player;
             r.draw($('#room-list')[0]);
         }
+    } else if (msg.type == "user") {
+
     } else if (msg.type == "game") {
         
     } else if (msg.type == "msg") {
         alert(msg.content);
+    } else if (msg.type == "command") {
+        if (msg.command == "nickname_reserved") {
+            // successfully registed the nickname
+            _nickname = _nicknameCandidate;
+            $('#signup-modal').foundation('reveal', 'close');
+        }
     }
 }
 
@@ -48,11 +111,23 @@ function validateNickname() {
         }
     }
 
-    _nickname = nickname;
-    $('#signup-modal').foundation('reveal', 'close');
+    _nicknameCandidate = nickname;
+    // send to server to verify
+    var msg = {
+        "type": "init",
+        "nickname": _nicknameCandidate
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
 }
 
-// initialization
+
+/* 
+    initialization
+*/
+
 $(document).foundation();
 $(function() {
 
@@ -83,4 +158,7 @@ $(function() {
             validateNickname();
         }
     });
+
+    // init websocket
+    initWebSocket();
 });
