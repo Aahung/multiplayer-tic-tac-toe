@@ -29,8 +29,6 @@ import ee4216.TTTUser;
 import ee4216.TTTConsole;
 
 public class TTTServlet extends WebSocketServlet{
-    private static final Logger log = Logger.getLogger( ClassName.class.getName() );
-
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
 
@@ -51,9 +49,11 @@ public class TTTServlet extends WebSocketServlet{
                 CharBuffer buffer = CharBuffer.wrap(msg);
                 mmib.myoutbound.writeTextMessage(buffer);
                 mmib.myoutbound.flush();
-                log.log( Level.FINER, "broadcasting to {0}, nickname {1}", 
-                        new Object[]{Integer.toHexString(System.identityHashCode(mmib)), 
-                                     mmib.user.getNickname()});
+                String nickname = null;
+                if (mmib.user != null) nickname = mmib.user.getNickname();
+                System.out.println(String.format("broadcasting to %s, nickname %s",
+                                                 Integer.toHexString(System.identityHashCode(mmib)), 
+                                                 nickname));
             }
         } catch (IOException e) {
             System.out.println(e);
