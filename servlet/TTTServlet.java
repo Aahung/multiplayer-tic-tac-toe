@@ -86,8 +86,12 @@ public class TTTServlet extends WebSocketServlet{
                     } else {
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                         // broadcast user info to all users
+
+                        JSONObject usersObj = new JSONObject();
+                        usersObj.put();
+
                         for(TTTMessageInbound mmib: mmiList){
-                            CharBuffer buffer = CharBuffer.wrap(obj.get("type").toString());
+                            CharBuffer buffer = CharBuffer.wrap();
                             mmib.myoutbound.writeTextMessage(buffer);
                             mmib.myoutbound.flush();
                         }
