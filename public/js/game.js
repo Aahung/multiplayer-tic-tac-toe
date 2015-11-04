@@ -75,7 +75,7 @@ function onReceiveMessage(msg) {
         for (var i = 0; i < msg.users.length; ++i) {
             var user = msg.users[i];
             var u = new User(user.nickname, user.image, user.type);
-            r.draw($('#user-list')[0]);
+            u.draw($('#user-list')[0]);
         }
     } else if (msg.type == "game") {
         
