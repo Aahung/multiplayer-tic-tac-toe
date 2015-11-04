@@ -33,6 +33,7 @@ public class TTTUser {
 		JSONObject obj = new JSONObject();
 		
 		obj.put("nickname", _nickname);
+		obj.put("type", String.format("%s", _userType));
 		obj.put("image", _imageURL);
 
 		return obj;
