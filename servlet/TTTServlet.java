@@ -63,6 +63,14 @@ public class TTTServlet extends WebSocketServlet{
         return usersObj;
     }
 
+    private JSONObject getRoomListAsJSONObject() {
+        JSONObject usersObj = new JSONObject();
+        usersObj.put("type", "room");
+        usersObj.put("rooms", _gameConsole.dumpRooms());
+
+        return usersObj;
+    }
+
     private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
         TTTUser user;

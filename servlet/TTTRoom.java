@@ -24,4 +24,15 @@ public class TTTRoom {
 		_player = null;
 		_game = null;
 	}
+
+	public JSONObject toJSONObject() {
+		JSONObject obj = new JSONObject();
+		
+		obj.put("waiting", _state == State.WAITING);
+		obj.put("owner", _owner.getNickname());
+		if (_player != null)
+			obj.put("player", _player.getNickname());
+
+		return obj;
+	}
 }

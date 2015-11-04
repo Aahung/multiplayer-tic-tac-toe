@@ -46,6 +46,16 @@ public class TTTConsole {
 		return array;
 	}
 
+	public JSONArray dumpRooms() {
+		JSONArray array = new JSONArray();
+
+		for (TTTUser room: _rooms) {
+			array.add(room.toJSONObject());
+		}
+
+		return array;
+	}
+
 	public TTTUser searchUser(String nickname) {
 		for (TTTUser user: _users) {
 			if (user.getNickname().equals(nickname)) {
