@@ -55,6 +55,14 @@ public class TTTServlet extends WebSocketServlet{
         }
     }
 
+    private JSONObject getUserListAsJSONObject() {
+        JSONObject usersObj = new JSONObject();
+        usersObj.put("type", "user");
+        usersObj.put("users", _gameConsole.dumpUsers());
+
+        return usersObj;
+    }
+
     private class TTTMessageInbound extends MessageInbound{
         WsOutbound myoutbound;
         TTTUser user;
@@ -66,6 +74,9 @@ public class TTTServlet extends WebSocketServlet{
                 this.myoutbound = outbound;
                 mmiList.add(this);
                 outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"content\":\"Hello!\"}"));
+
+                // send the user list to him
+                outbound.writeTextMessage(CharBuffer.wrap(getUserListAsJSONObject().toString())); 
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -77,11 +88,8 @@ public class TTTServlet extends WebSocketServlet{
             _gameConsole.removeUser(user);
             mmiList.remove(this);
 
-            JSONObject usersObj = new JSONObject();
-            usersObj.put("type", "user");
-            usersObj.put("users", _gameConsole.dumpUsers());
-
-            broadcastMessage(usersObj.toString());
+            // broadcast user info
+            broadcastMessage(getUserListAsJSONObject().toString());
         }
 
         @Override
