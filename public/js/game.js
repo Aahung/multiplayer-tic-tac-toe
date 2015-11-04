@@ -93,13 +93,15 @@ function onReceiveMessage(msg) {
 }
 
 function createRoom() {
-    onReceiveUpdate({
-        "type": "room",
-        "rooms": [{
-            "waiting": 1,
-            "owner": _nickname
-        }]
-    });
+    // send to server to verify
+    var msg = {
+        "type": "command",
+        "command": "create_room" 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
 }
 
 function validateNickname() {

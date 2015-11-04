@@ -35,7 +35,7 @@ public class TTTServlet extends WebSocketServlet{
     private TTTConsole _gameConsole;
 
     public TTTServlet() {
-        _gameConsole = new TTTConsole();
+        _gameConsole = new TTTConsole(this);
     }
 
     @Override
@@ -76,6 +76,14 @@ public class TTTServlet extends WebSocketServlet{
         return usersObj;
     }
 
+    public void onRoomChange() {
+        broadcastMessage(getRoomListAsJSONObject().toString());
+    }
+
+    public void onUserChange() {
+        broadcastMessage(getUserListAsJSONObject().toString());
+    }
+
     private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
         TTTUser user;
@@ -90,6 +98,9 @@ public class TTTServlet extends WebSocketServlet{
 
                 // send the user list to him
                 outbound.writeTextMessage(CharBuffer.wrap(getUserListAsJSONObject().toString())); 
+                // send the room list to him
+                outbound.writeTextMessage(CharBuffer.wrap(getRoomListAsJSONObject().toString())); 
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -104,11 +115,10 @@ public class TTTServlet extends WebSocketServlet{
             else 
                 System.out.println(String.format("broadcasting to %s",
                                                  Integer.toHexString(System.identityHashCode(this))));
-            _gameConsole.removeUser(user);
+            TTTUser userToRemove = user;
+            user = null;
+            _gameConsole.removeUser(userToRemove);
             mmiList.remove(this);
-
-            // broadcast user info
-            broadcastMessage(getUserListAsJSONObject().toString());
         }
 
         @Override
@@ -129,14 +139,23 @@ public class TTTServlet extends WebSocketServlet{
                         // fail
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
                         // broadcast user info to all users
-
-                        JSONObject usersObj = new JSONObject();
-                        usersObj.put("type", "user");
-                        usersObj.put("users", _gameConsole.dumpUsers());
-
-                        broadcastMessage(usersObj.toString());
+                        broadcastMessage(getUserListAsJSONObject().toString());
                     } else {
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
+                    }
+                } else if (type.equals("command")) {
+                    String command = obj.get("command").toString();
+                    if (command.equals("create_room")) {
+                        // create room
+                        if (user != null) {
+                            if (!_gameConsole.createRoom(user)) {
+                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Please quit a room first.\"}"));
+                            } else {
+                                broadcastMessage(getRoomListAsJSONObject().toString());
+                            }
+                        } else {
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Sign up first.\"}"));
+                        }
                     }
                 }
                 

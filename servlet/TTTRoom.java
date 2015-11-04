@@ -6,6 +6,8 @@
 
 package ee4216;
 
+import java.util.*;
+import org.json.simple.*;
 import ee4216.TTTUser;
 import ee4216.TTTGame;
 
@@ -34,5 +36,29 @@ public class TTTRoom {
 			obj.put("player", _player.getNickname());
 
 		return obj;
+	}
+
+	public TTTUser getOwner() {
+		return _owner;
+	}
+
+	public TTTUser getPlayer() {
+		return _player;
+	}
+
+	public boolean isWaiting() {
+		return _state == State.WAITING;
+	}
+
+	public void escape(TTTUser user) {
+		if (_state == State.WAITING) return;
+		if (_owner == user) {
+			_owner = _player;
+			_player = null;
+			_state = State.WAITING;
+		} else if (_player == user) {
+			_player = null;
+			_state = State.WAITING;
+		}
 	}
 }

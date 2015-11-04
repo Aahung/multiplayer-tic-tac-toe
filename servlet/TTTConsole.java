@@ -9,14 +9,17 @@ package ee4216;
 import java.util.*;
 import org.json.simple.*;
 
+import ee4216.TTTServlet;
 import ee4216.TTTUser;
 import ee4216.TTTGame;
 
 public class TTTConsole {
+	private TTTServlet _servlet;
 	private List<TTTRoom> _rooms;
 	private List<TTTUser> _users;
 
-	public TTTConsole() {
+	public TTTConsole(TTTServlet servlet) {
+		_servlet = servlet;
 		_rooms = new ArrayList<TTTRoom>();
 		_users = new ArrayList<TTTUser>();
 	}
@@ -26,6 +29,7 @@ public class TTTConsole {
 		if (searchUser(nickname) == null) {
 			TTTUser user = new TTTUser(nickname);
 			_users.add(user);
+			_servlet.onUserChange();
 			return user;
 		}
 		return null;
@@ -34,6 +38,18 @@ public class TTTConsole {
 	public void removeUser(TTTUser user) {
 		if (user == null) return;
 		_users.remove(user);
+		_servlet.onUserChange();
+		// remove all the room whose owner is user and it is waiting
+		TTTRoom ownRoom = getRoomByOwner(user);
+		if (ownRoom != null && ownRoom.isWaiting()) {
+			_rooms.remove(ownRoom);
+		}
+		for (TTTRoom room: _rooms) {
+			if (room.getPlayer() == user) {
+				room.escape(user);
+			}
+		}
+		_servlet.onRoomChange();
 	}
 
 	public JSONArray dumpUsers() {
@@ -49,7 +65,7 @@ public class TTTConsole {
 	public JSONArray dumpRooms() {
 		JSONArray array = new JSONArray();
 
-		for (TTTUser room: _rooms) {
+		for (TTTRoom room: _rooms) {
 			array.add(room.toJSONObject());
 		}
 
@@ -65,16 +81,25 @@ public class TTTConsole {
 		return null;
 	}
 
-	public TTTUser getUserByConnectionId(String connectionId) {
+	public TTTRoom getRoomByOwner(TTTUser owner) {
+		for (TTTRoom room: _rooms) {
+			if (room.getOwner() == owner) {
+				return room;
+			}
+		}
 		return null;
 	}
 
-	public TTTGame getGameByOwner(TTTUser owner) {
-		return null;
-	}
-
-	public boolean addGame(TTTUser user) {
-		return false;
+	public boolean createRoom(TTTUser user) {
+		for (TTTRoom room: _rooms) {
+			if (room.getOwner() == user) return false;
+			if (room.getPlayer() == user) return false;
+		}
+		
+		TTTRoom room = new TTTRoom(user);
+		_rooms.add(room);
+		_servlet.onRoomChange();
+		return true;
 	}
 
 	public boolean joinGame(TTTUser player, TTTGame game) {
