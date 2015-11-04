@@ -43,6 +43,18 @@ public class TTTServlet extends WebSocketServlet{
         return new TTTMessageInbound();
     }
 
+    private void broadcastMessage(String msg) {
+        try {
+            for(TTTMessageInbound mmib: mmiList){
+                CharBuffer buffer = CharBuffer.wrap(msg);
+                mmib.myoutbound.writeTextMessage(buffer);
+                mmib.myoutbound.flush();
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
     private class TTTMessageInbound extends MessageInbound{
         WsOutbound myoutbound;
         TTTUser user;
@@ -53,19 +65,24 @@ public class TTTServlet extends WebSocketServlet{
                 System.out.println("Open Client.");
                 this.myoutbound = outbound;
                 mmiList.add(this);
-                outbound.writeTextMessage(CharBuffer.wrap("Hello!"));
+                outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"content\":\"Hello!\"}"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         @Override
-        public void onClose(int status){
+        public void onClose(int status) {
             System.out.println("Close Client.");
+            _gameConsole.removeUser(user);
             mmiList.remove(this);
+
+            JSONObject usersObj = new JSONObject();
+            usersObj.put("type", "user");
+            usersObj.put("users", _gameConsole.dumpUsers());
+
+            broadcastMessage(usersObj.toString());
         }
-
-
 
         @Override
         public void onTextMessage(CharBuffer cb) throws IOException{
@@ -80,7 +97,8 @@ public class TTTServlet extends WebSocketServlet{
                     String nickname = obj.get("nickname").toString();
                     System.out.println("nickname: " + nickname);
                     // check if there is a same nickname
-                    if (_gameConsole.addUser(nickname)) {
+                    user = _gameConsole.addUser(nickname);
+                    if (user != null) {
                         // fail
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
                         // broadcast user info to all users
@@ -89,11 +107,7 @@ public class TTTServlet extends WebSocketServlet{
                         usersObj.put("type", "user");
                         usersObj.put("users", _gameConsole.dumpUsers());
 
-                        for(TTTMessageInbound mmib: mmiList){
-                            CharBuffer buffer = CharBuffer.wrap(usersObj.toString());
-                            mmib.myoutbound.writeTextMessage(buffer);
-                            mmib.myoutbound.flush();
-                        }
+                        broadcastMessage(usersObj.toString());
                     } else {
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                     }

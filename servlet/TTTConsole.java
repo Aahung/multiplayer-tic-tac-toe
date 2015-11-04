@@ -22,14 +22,19 @@ public class TTTConsole {
 	}
 
 	// return true if user's nickname is available
-	public boolean addUser(String nickname) {
+	public TTTUser addUser(String nickname) {
 		if (searchUser(nickname) == null) {
-			_users.add(new TTTUser(nickname));
-			return true;
+			TTTUser user = new TTTUser(nickname);
+			_users.add(user);
+			return user;
 		}
-		return false;
+		return null;
 	}
 
+	public void removeUser(TTTUser user) {
+		if (user == null) return;
+		_users.remove(user);
+	}
 
 	public JSONArray dumpUsers() {
 		JSONArray array = new JSONArray();
