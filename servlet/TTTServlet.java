@@ -63,7 +63,7 @@ public class TTTServlet extends WebSocketServlet{
         return usersObj;
     }
 
-    private class TTTMessageInbound extends MessageInbound{
+    private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
         TTTUser user;
 
@@ -73,7 +73,7 @@ public class TTTServlet extends WebSocketServlet{
                 System.out.println("Open Client.");
                 this.myoutbound = outbound;
                 mmiList.add(this);
-                outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"content\":\"Hello!\"}"));
+                outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"log\",\"content\":\"Hello!\"}"));
 
                 // send the user list to him
                 outbound.writeTextMessage(CharBuffer.wrap(getUserListAsJSONObject().toString())); 
