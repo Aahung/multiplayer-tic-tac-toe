@@ -5,7 +5,7 @@ deploydir=/var/lib/tomcat7/webapps/ROOT
 echo '[+] compile'
 libdir=/usr/share/tomcat7/lib
 export CLASSPATH=$libdir/servlet-api.jar:$libdir/jsp-api.jar:$libdir/catalina.jar:$libdir/tomcat-coyote.jar:`pwd`/json-simple-1.1.1.jar
-javac TTTServlet.java *.java JSON-java/*.java
+javac TTTServlet.java *.java
 
 echo '[+] deploy'
 mkdir -p $deploydir/WEB-INF

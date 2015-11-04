@@ -75,14 +75,16 @@ public class TTTServlet extends WebSocketServlet{
             try {
                 JSONObject obj = (JSONObject)parser.parse(message);
                 String type = obj.get("type").toString();
-                if (type == "init") {
+                System.out.println("type: " + type);
+                if (type.equals("init")) {
                     String nickname = obj.get("nickname").toString();
+                    System.out.println("nickname: " + nickname);
                     // check if there is a same nickname
                     if (_gameConsole.addUser(nickname)) {
                         // fail
-                        outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
+                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
                     } else {
-                        outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
+                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                         // broadcast user info to all users
                         for(TTTMessageInbound mmib: mmiList){
                             CharBuffer buffer = CharBuffer.wrap(obj.get("type").toString());
@@ -94,6 +96,8 @@ public class TTTServlet extends WebSocketServlet{
                 
             } catch (ParseException e) {
                 System.out.println("position: " + e.getPosition());
+                System.out.println(e);
+            } catch (Exception e) {
                 System.out.println(e);
             }
         }
