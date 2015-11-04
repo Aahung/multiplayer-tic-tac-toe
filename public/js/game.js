@@ -80,7 +80,9 @@ function onReceiveMessage(msg) {
     } else if (msg.type == "game") {
         
     } else if (msg.type == "msg") {
-        alert(msg.content);
+        if (msg.level == "alert")
+            alert(msg.content);
+        console.log(msg.content);
     } else if (msg.type == "command") {
         if (msg.command == "nickname_reserved") {
             // successfully registed the nickname
