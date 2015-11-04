@@ -49,6 +49,11 @@ public class TTTServlet extends WebSocketServlet{
                 CharBuffer buffer = CharBuffer.wrap(msg);
                 mmib.myoutbound.writeTextMessage(buffer);
                 mmib.myoutbound.flush();
+                String nickname = null;
+                if (mmib.user != null) nickname = mmib.user.getNickname();
+                System.out.println(String.format("broadcasting to %s, nickname %s",
+                                                 Integer.toHexString(System.identityHashCode(mmib)), 
+                                                 nickname));
             }
         } catch (IOException e) {
             System.out.println(e);
@@ -92,7 +97,13 @@ public class TTTServlet extends WebSocketServlet{
 
         @Override
         public void onClose(int status) {
-            System.out.println("Close Client.");
+            if (user != null)
+                System.out.println(String.format("Close client %s, nickname %s",
+                                                 Integer.toHexString(System.identityHashCode(this)), 
+                                                 user.getNickname()));
+            else 
+                System.out.println(String.format("broadcasting to %s",
+                                                 Integer.toHexString(System.identityHashCode(this))));
             _gameConsole.removeUser(user);
             mmiList.remove(this);
 
