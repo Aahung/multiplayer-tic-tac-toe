@@ -7,6 +7,8 @@
 package ee4216;
 
 import java.util.*;
+import org.json.simple.*;
+
 import ee4216.TTTUser;
 import ee4216.TTTGame;
 
@@ -24,8 +26,14 @@ public class TTTConsole {
 		return false;
 	}
 
-	public String dumpUsers() {
-		
+	public JSONArray dumpUsers() {
+		JSONArray array = new JSONArray();
+
+		for (TTTUser user: _users) {
+			array.add(user.toJSONObject());
+		}
+
+		return array;
 	}
 
 	public TTTUser searchUser(String nickname) {

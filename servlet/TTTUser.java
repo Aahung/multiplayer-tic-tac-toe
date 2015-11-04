@@ -6,6 +6,8 @@
 
 package ee4216;
 
+import org.json.simple.*;
+
 public class TTTUser {
 	private String _nickname;
 	private UserType _userType;
@@ -25,5 +27,15 @@ public class TTTUser {
 		_nickname = nickname;
 		_userType = UserType.FACEBOOK;
 		_imageURL = imageURL;
+	}
+
+	public JSONObject toJSONObject() {
+		JSONObject obj = new JSONObject();
+		
+		obj.put("nickname": _nickname);
+		obj.put("type": _userType);
+		obj.put("image": _imageURL);
+
+		return obj;
 	}
 }
