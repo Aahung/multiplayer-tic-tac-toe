@@ -84,7 +84,7 @@ public class TTTServlet extends WebSocketServlet{
 
         @Override
         public void onClose(int status) {
-            System.out.println("Close Client.");
+            System.out.println("Close Client with nickname: " + user.getNickname());
             _gameConsole.removeUser(user);
             mmiList.remove(this);
 
