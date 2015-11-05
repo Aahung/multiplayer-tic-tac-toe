@@ -10,21 +10,16 @@ function Room(waiting, owner) {
     this.element = undefined;
 }
 
-// join player
-Room.prototype.join = function(player) {
-    if (this.waiting) {
-        // join the game
-    } else {
-        // view the game
-    }
-};
-
 // initialize template render
 Room.prototype.render = doT.compile($('#room-template').html());
 
 // draw into the html
-Room.prototype.draw = function(roomList) {
+Room.prototype.draw = function(roomList, onClickListener) {
     var html = Room.prototype.render(this);
     this.element = $(html);
+    var owner = this.owner;
+    $(this.element).click(function() {
+    	onClickListener(owner);
+    });
     $(roomList).append(this.element);
 };

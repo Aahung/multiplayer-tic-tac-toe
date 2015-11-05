@@ -67,7 +67,7 @@ function onReceiveMessage(msg) {
             var room = msg.rooms[i];
             var r = new Room(room.waiting, room.owner);
             if (!room.waiting) r.player = room.player;
-            r.draw($('#room-list')[0]);
+            r.draw($('#room-list')[0], joinRoom);
         }
     } else if (msg.type == "user") {
         // update users
@@ -88,18 +88,51 @@ function onReceiveMessage(msg) {
             // successfully registed the nickname
             _nickname = _nicknameCandidate;
             $('#signup-modal').foundation('reveal', 'close');
+        } else if (msg.command == "room_created") {
+            $('#game-block').fadeIn();
+        } else if (msg.command == "room_joined") {
+            $('#game-block').fadeIn();
+        } else if (msg.command == "room_quited") {
+            $('#game-block').fadeOut();
         }
     }
 }
 
+function joinRoom(ownerNickname) {
+    // send to server to join the room
+    var msg = {
+        "type": "command",
+        "command": "join_room",
+        "owner": ownerNickname
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
 function createRoom() {
-    onReceiveUpdate({
-        "type": "room",
-        "rooms": [{
-            "waiting": 1,
-            "owner": _nickname
-        }]
-    });
+    // send to server to verify
+    var msg = {
+        "type": "command",
+        "command": "create_room" 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function quitRoom() {
+    // send to server to join the room
+    var msg = {
+        "type": "command",
+        "command": "quit_room"
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
 }
 
 function validateNickname() {

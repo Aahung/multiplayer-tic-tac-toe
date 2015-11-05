@@ -23,19 +23,63 @@ import org.apache.catalina.websocket.StreamInbound;
 import org.apache.catalina.websocket.WebSocketServlet;
 import org.apache.catalina.websocket.WsOutbound;
 
-import ee4216.TTTGame;
-import ee4216.TTTRoom;
-import ee4216.TTTUser;
-import ee4216.TTTConsole;
+import ee4216.*;
 
 public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
+    private static Map<TTTUser, TTTMessageInbound> _userToTTTMIB = new HashMap<TTTUser, TTTMessageInbound>();
 
     private TTTConsole _gameConsole;
 
+    // callbacks
+    public TTTCallback _onRoomChangeListener, _onUserChangeListener;
+    public TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+
     public TTTServlet() {
+
+        // init callback
+        _onRoomChangeListener = new TTTCallback() {
+            @Override
+            public void call(Object sender) {
+                broadcastMessage(getRoomListAsJSONObject().toString());
+                System.out.println("onRoomChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
+            }
+        };
+
+        _onUserChangeListener = new TTTCallback() {
+            @Override
+            public void call(Object sender) {
+                broadcastMessage(getUserListAsJSONObject().toString());
+                System.out.println("onRoomChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
+            }
+        };
+
+        _onRoomStateChangeListener = new TTTCallback1P<TTTRoom>() {
+            @Override
+            public void call(Object sender, TTTRoom room) {
+                TTTUser owner = room.getOwner();
+                TTTUser player = room.getPlayer();
+
+                JSONObject roomObj = new JSONObject();
+                roomObj.put("type", "the_room");
+                roomObj.put("room", room.toJSONObject());
+
+                try {
+                    _userToTTTMIB.get(owner).myoutbound.writeTextMessage(CharBuffer.wrap(roomObj.toString()));
+                    if (player != null)
+                        _userToTTTMIB.get(player).myoutbound.writeTextMessage(CharBuffer.wrap(roomObj.toString()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("onRoomChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
+            }
+        };
+
         _gameConsole = new TTTConsole();
+        _gameConsole.setOnRoomChangeListener(_onRoomChangeListener);
+        _gameConsole.setOnUserChangeListener(_onUserChangeListener);
+        _gameConsole.setOnRoomStateChangeListener(_onRoomStateChangeListener);
     }
 
     @Override
@@ -68,6 +112,14 @@ public class TTTServlet extends WebSocketServlet{
         return usersObj;
     }
 
+    private JSONObject getRoomListAsJSONObject() {
+        JSONObject usersObj = new JSONObject();
+        usersObj.put("type", "room");
+        usersObj.put("rooms", _gameConsole.dumpRooms());
+
+        return usersObj;
+    }
+
     private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
         TTTUser user;
@@ -82,6 +134,9 @@ public class TTTServlet extends WebSocketServlet{
 
                 // send the user list to him
                 outbound.writeTextMessage(CharBuffer.wrap(getUserListAsJSONObject().toString())); 
+                // send the room list to him
+                outbound.writeTextMessage(CharBuffer.wrap(getRoomListAsJSONObject().toString())); 
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -96,11 +151,11 @@ public class TTTServlet extends WebSocketServlet{
             else 
                 System.out.println(String.format("broadcasting to %s",
                                                  Integer.toHexString(System.identityHashCode(this))));
-            _gameConsole.removeUser(user);
+            TTTUser userToRemove = user;
+            user = null;
+            _gameConsole.removeUser(userToRemove);
+            _userToTTTMIB.remove(userToRemove);
             mmiList.remove(this);
-
-            // broadcast user info
-            broadcastMessage(getUserListAsJSONObject().toString());
         }
 
         @Override
@@ -118,25 +173,54 @@ public class TTTServlet extends WebSocketServlet{
                     // check if there is a same nickname
                     user = _gameConsole.addUser(nickname);
                     if (user != null) {
-                        // fail
+                        _userToTTTMIB.put(user, this);
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
-                        // broadcast user info to all users
-
-                        JSONObject usersObj = new JSONObject();
-                        usersObj.put("type", "user");
-                        usersObj.put("users", _gameConsole.dumpUsers());
-
-                        broadcastMessage(usersObj.toString());
                     } else {
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
+                    }
+                } else if (type.equals("command")) {
+                    String command = obj.get("command").toString();
+                    if (command.equals("create_room")) {
+                        // create room
+                        if (user != null) {
+                            if (!_gameConsole.createRoom(user)) {
+                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Please quit a room first.\"}"));
+                            } else {
+                                broadcastMessage(getRoomListAsJSONObject().toString());
+                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_created\"}"));
+                            }
+                        } else {
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Sign up first.\"}"));
+                        }
+                    } else if (command.equals("join_room")) {
+                        String ownerNickname = obj.get("owner").toString();
+                        TTTUser owner = _gameConsole.searchUser(ownerNickname);
+                        if (owner == null) {
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"No room with owner " + ownerNickname + ".\"}"));
+                        } else {
+                            TTTRoom room = _gameConsole.getRoomByOwner(owner);
+                            if (room == null) {
+                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"No room with owner " + ownerNickname + ".\"}"));
+                            } else {
+                                if (_gameConsole.joinRoom(user, room)) {
+                                    myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_joined\"}"));
+                                } else {
+                                    myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Cannot join the room.\"}"));
+                                }
+                            }
+                        }
+                    } else if (command.equals("quit_room")) {
+                        TTTRoom room = _gameConsole.getRoomByUser(user);
+                        _gameConsole.quitRoom(user, room);
+                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
                     }
                 }
                 
             } catch (ParseException e) {
                 System.out.println("position: " + e.getPosition());
-                System.out.println(e);
+                e.printStackTrace(System.out);
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace(System.out);
             }
         }
 
