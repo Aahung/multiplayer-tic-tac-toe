@@ -9,19 +9,37 @@ package ee4216;
 import java.util.*;
 import org.json.simple.*;
 
-import ee4216.TTTServlet;
-import ee4216.TTTUser;
-import ee4216.TTTGame;
+import ee4216.*;
 
 public class TTTConsole {
-	private TTTServlet _servlet;
 	private List<TTTRoom> _rooms;
 	private List<TTTUser> _users;
+	private static Map<TTTUser, TTTRoom> _userToRoom = new HashMap<TTTUser, TTTRoom>();
 
-	public TTTConsole(TTTServlet servlet) {
-		_servlet = servlet;
+	private TTTCallback _onRoomChangeListener, _onUserChangeListener;
+	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+
+	public TTTConsole() {
 		_rooms = new ArrayList<TTTRoom>();
 		_users = new ArrayList<TTTUser>();
+	}
+
+	public void setOnRoomChangeListener(final TTTCallback onRoomChangeListener) {
+		_onRoomChangeListener = onRoomChangeListener;
+	}
+
+	public void setOnUserChangeListener(final TTTCallback onUserChangeListener) {
+		_onUserChangeListener = onUserChangeListener;
+	}
+
+	public void setOnRoomStateChangeListener(final TTTCallback1P<TTTRoom> onRoomStateChangeListener) {
+		_onRoomStateChangeListener = new TTTCallback1P<TTTRoom>() {
+			@Override public void call(Object sender, TTTRoom room) {
+				if (_onRoomChangeListener != null)
+					_onRoomChangeListener.call(sender);
+				onRoomStateChangeListener.call(sender, room);
+			}
+		};
 	}
 
 	// return true if user's nickname is available
@@ -29,7 +47,8 @@ public class TTTConsole {
 		if (searchUser(nickname) == null) {
 			TTTUser user = new TTTUser(nickname);
 			_users.add(user);
-			_servlet.onUserChange();
+			if (_onUserChangeListener != null)
+				_onUserChangeListener.call(this);
 			return user;
 		}
 		return null;
@@ -38,7 +57,8 @@ public class TTTConsole {
 	public void removeUser(TTTUser user) {
 		if (user == null) return;
 		_users.remove(user);
-		_servlet.onUserChange();
+		if (_onUserChangeListener != null)
+			_onUserChangeListener.call(this);
 		// remove all the room whose owner is user and it is waiting
 		TTTRoom ownRoom = getRoomByOwner(user);
 		if (ownRoom != null && ownRoom.isWaiting()) {
@@ -49,7 +69,8 @@ public class TTTConsole {
 				room.escape(user);
 			}
 		}
-		_servlet.onRoomChange();
+		if (_onRoomChangeListener != null)
+			_onRoomChangeListener.call(this);
 	}
 
 	public JSONArray dumpUsers() {
@@ -90,6 +111,10 @@ public class TTTConsole {
 		return null;
 	}
 
+	public TTTRoom getRoomByUser(TTTUser user) {
+		return _userToRoom.get(user);
+	}
+
 	public boolean createRoom(TTTUser user) {
 		for (TTTRoom room: _rooms) {
 			if (room.getOwner() == user) return false;
@@ -97,13 +122,31 @@ public class TTTConsole {
 		}
 		
 		TTTRoom room = new TTTRoom(user);
+		room.setOnRoomStateChangeListener(_onRoomStateChangeListener);
 		_rooms.add(room);
-		_servlet.onRoomChange();
+		_userToRoom.put(user, room);
+		if (_onRoomChangeListener != null)
+			_onRoomChangeListener.call(this);
 		return true;
 	}
 
-	public boolean joinGame(TTTUser player, TTTGame game) {
-		return false;
+	public boolean joinRoom(TTTUser player, TTTRoom room) {
+		if (room.join(player)) {
+			_userToRoom.put(player, room);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void quitRoom(TTTUser user, TTTRoom room) {
+		room.escape(user);
+		if (room.getOwner() == user) {
+			_userToRoom.remove(user);
+			_rooms.remove(room);
+		}
+		if (_onRoomChangeListener != null)
+			_onRoomChangeListener.call(this);
 	}
 
 	public boolean moveGame(TTTUser owner, TTTUser mover, int dotIndex) {

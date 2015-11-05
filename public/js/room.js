@@ -14,8 +14,12 @@ function Room(waiting, owner) {
 Room.prototype.render = doT.compile($('#room-template').html());
 
 // draw into the html
-Room.prototype.draw = function(roomList) {
+Room.prototype.draw = function(roomList, onClickListener) {
     var html = Room.prototype.render(this);
     this.element = $(html);
+    var owner = this.owner;
+    $(this.element).click(function() {
+    	onClickListener(owner);
+    });
     $(roomList).append(this.element);
 };
