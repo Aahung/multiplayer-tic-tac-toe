@@ -120,7 +120,7 @@ public class TTTGame {
 	private boolean move(int mark, int dotIndex) {
 		int i = dotIndex / 3;
 		int j = dotIndex % 3;
-		if (_dots[i][j] != 0 || turn != mark) return false;
+		if (_dots[i][j] != 0 || turn != mark || checkResult() != 0) return false;
 		_dots[i][j] = mark;
 		if (_onGameChangeListener != null)
 			_onGameChangeListener.call(this);
