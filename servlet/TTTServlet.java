@@ -9,6 +9,7 @@ package ee4216;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.*;
+import java.text.SimpleDateFormat;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
@@ -80,6 +81,10 @@ public class TTTServlet extends WebSocketServlet{
         _gameConsole.setOnRoomChangeListener(_onRoomChangeListener);
         _gameConsole.setOnUserChangeListener(_onUserChangeListener);
         _gameConsole.setOnRoomStateChangeListener(_onRoomStateChangeListener);
+
+        // setup beacon sending task
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new SendBeaconTask(), 0, 10000);
     }
 
     @Override
@@ -102,6 +107,22 @@ public class TTTServlet extends WebSocketServlet{
         } catch (IOException e) {
             System.out.println(e);
         }
+    }
+
+    /*
+        Beacon sending
+    */
+    class SendBeaconTask extends TimerTask {
+        public void run() {
+            sendBeacon();
+        }
+    }
+
+    private void sendBeacon() {
+        // send the server time to all clients
+        // just to keep the connection active
+        String timeStamp = new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date());
+        broadcastMessage("{\"type\":\"msg\",\"level\":\"log\",\"content\":\"Server time " + timeStamp + ".\"}");
     }
 
     private JSONObject getUserListAsJSONObject() {
