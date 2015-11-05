@@ -72,16 +72,15 @@ public class TTTConsole {
 		_users.remove(user);
 		if (_onUserChangeListener != null)
 			_onUserChangeListener.call(this);
-		// remove all the room whose owner is user and it is waiting
+		// remove all the room whose owner is user and it is only one in the room
 		TTTRoom ownRoom = getRoomByOwner(user);
-		if (ownRoom != null && ownRoom.isWaiting()) {
+		if (ownRoom != null && ownRoom.getPlayer() == null) {
 			_rooms.remove(ownRoom);
 		}
-		for (TTTRoom room: _rooms) {
-			if (room.getPlayer() == user) {
-				room.escape(user);
-			}
-		}
+		TTTRoom joinedRoom = _userToRoom.get(user);
+		if (joinedRoom != null)
+			joinedRoom.escape(user);
+		_userToRoom.remove(user);
 		if (_onRoomChangeListener != null)
 			_onRoomChangeListener.call(this);
 	}
