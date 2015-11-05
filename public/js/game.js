@@ -80,7 +80,8 @@ function onReceiveMessage(msg) {
     } else if (msg.type == "the_game") {
         drawCanvas(msg.game.owner, msg.game.player);
         if (msg.game.result != 0) {
-            if (msg.room.owner == _nickname && msg.game.result == 1) {
+            if (msg.room.owner == _nickname && msg.game.result == 1
+                || msg.room.player == _nickname && msg.game.result == -1) {
                 alert("You win!");
             } else {
                 alert("You lose!");

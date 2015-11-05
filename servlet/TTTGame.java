@@ -104,7 +104,7 @@ public class TTTGame {
 				if (dots[i_dots] == lines[i][i_lines]) i_lines++;
 				i_dots++;
 			}
-			if (i_lines == 3 && i_dots == dots.length) {
+			if (i_lines == 3) {
 				return true;
 			}
 		}
