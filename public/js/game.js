@@ -77,8 +77,16 @@ function onReceiveMessage(msg) {
             var u = new User(user.nickname, user.image, user.type);
             u.draw($('#user-list')[0]);
         }
-    } else if (msg.type == "game") {
-        
+    } else if (msg.type == "the_game") {
+        drawCanvas(msg.game.owner, msg.game.player);
+        if (msg.game.result != 0) {
+            if (msg.room.owner == _nickname && msg.game.result == 1
+                || msg.room.player == _nickname && msg.game.result == -1) {
+                alert("You win!");
+            } else {
+                alert("You lose!");
+            }
+        }
     } else if (msg.type == "msg") {
         if (msg.level == "alert")
             alert(msg.content);
@@ -124,7 +132,7 @@ function createRoom() {
 }
 
 function quitRoom() {
-    // send to server to join the room
+    // send to server to quit the room
     var msg = {
         "type": "command",
         "command": "quit_room"
@@ -164,6 +172,89 @@ function validateNickname() {
     }
 }
 
+function drawCanvas(ownerDots, playerDots) {
+    var c = document.getElementById("game-canvas");
+    var ctx = c.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, c.width, c.height);
+
+    // draw grid
+    ctx.beginPath();
+    ctx.moveTo(0, c.height / 3.0);
+    ctx.lineTo(c.width, c.height / 3.0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 2 * c.height / 3.0);
+    ctx.lineTo(c.width, 2 * c.height / 3.0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(c.width / 3.0, 0);
+    ctx.lineTo(c.width / 3.0, c.height);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(2 * c.width / 3.0, 0);
+    ctx.lineTo(2 * c.width / 3.0, c.height);
+    ctx.stroke();
+
+    // draw owner circle
+    ctx.lineWidth = 10;
+    var markRadius = Math.min(c.height, c.width) / 8.0;
+    for (var i = 0; i < ownerDots.length; ++i) {
+        var row = Math.floor(ownerDots[i] / 3);
+        var col = ownerDots[i] - 3 * row;
+        var centerX = (1 + 2 * col) * c.width / 6.0;
+        var centerY = (1 + 2 * row) * c.height / 6.0;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, markRadius, 0, 2*Math.PI);
+        ctx.stroke();
+    }
+
+    // draw the cross
+    for (var i = 0; i < playerDots.length; ++i) {
+        var row = Math.floor(playerDots[i] / 3);
+        var col = playerDots[i] - 3 * row;
+        var centerX = (1 + 2 * col) * c.width / 6.0;
+        var centerY = (1 + 2 * row) * c.height / 6.0;
+        ctx.beginPath();
+        ctx.moveTo(centerX - markRadius, centerY - markRadius);
+        ctx.lineTo(centerX + markRadius, centerY + markRadius);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX + markRadius, centerY - markRadius);
+        ctx.lineTo(centerX - markRadius, centerY + markRadius);
+        ctx.stroke();
+    }
+}
+
+function onCanvasMouseUp(event) {
+    var c = document.getElementById("game-canvas");
+    var mouseX, mouseY;
+    if ( event.offsetX == null ) { // Firefox
+        mouseX = event.originalEvent.layerX;
+        mouseY = event.originalEvent.layerY;
+    } else {                       // Other browsers
+        mouseX = event.offsetX;
+        mouseY = event.offsetY;
+    }
+    var row = Math.floor(3 * mouseY / c.height);
+    var col = Math.floor(3 * mouseX / c.width);
+
+    var dotIndex = row * 3 + col;
+    console.log("dot " + dotIndex + " clicked.");
+
+    // send to server to verify the move
+    var msg = {
+        "type": "command",
+        "command": "move_game",
+        "dot_index": dotIndex
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
 
 /* 
     initialization
@@ -202,4 +293,8 @@ $(function() {
 
     // init websocket
     initWebSocket();
+
+    // add listener to canvas
+    var canvas = document.getElementById("game-canvas");
+    canvas.addEventListener("mouseup", onCanvasMouseUp, false);
 });

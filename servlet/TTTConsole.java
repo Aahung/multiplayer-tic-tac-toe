@@ -17,7 +17,7 @@ public class TTTConsole {
 	private static Map<TTTUser, TTTRoom> _userToRoom = new HashMap<TTTUser, TTTRoom>();
 
 	private TTTCallback _onRoomChangeListener, _onUserChangeListener;
-	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener, _onGameChangeListener;
 
 	public TTTConsole() {
 		_rooms = new ArrayList<TTTRoom>();
@@ -42,6 +42,19 @@ public class TTTConsole {
 		};
 	}
 
+	public void setOnGameChangeListener(final TTTCallback1P<TTTRoom> onGameChangeListener) {
+		_onGameChangeListener = new TTTCallback1P<TTTRoom>() {
+			@Override public void call(Object sender, TTTRoom room) {
+				if (room.getGame().checkResult() != 0) {
+					// game states change
+					if (_onRoomStateChangeListener != null)
+						_onRoomStateChangeListener.call(sender, room);
+				}
+				onGameChangeListener.call(sender, room);
+			}
+		};
+	}
+
 	// return true if user's nickname is available
 	public TTTUser addUser(String nickname) {
 		if (searchUser(nickname) == null) {
@@ -59,16 +72,15 @@ public class TTTConsole {
 		_users.remove(user);
 		if (_onUserChangeListener != null)
 			_onUserChangeListener.call(this);
-		// remove all the room whose owner is user and it is waiting
+		// remove all the room whose owner is user and it is only one in the room
 		TTTRoom ownRoom = getRoomByOwner(user);
-		if (ownRoom != null && ownRoom.isWaiting()) {
+		if (ownRoom != null && ownRoom.getPlayer() == null) {
 			_rooms.remove(ownRoom);
 		}
-		for (TTTRoom room: _rooms) {
-			if (room.getPlayer() == user) {
-				room.escape(user);
-			}
-		}
+		TTTRoom joinedRoom = _userToRoom.get(user);
+		if (joinedRoom != null)
+			joinedRoom.escape(user);
+		_userToRoom.remove(user);
 		if (_onRoomChangeListener != null)
 			_onRoomChangeListener.call(this);
 	}
@@ -123,6 +135,7 @@ public class TTTConsole {
 		
 		TTTRoom room = new TTTRoom(user);
 		room.setOnRoomStateChangeListener(_onRoomStateChangeListener);
+		room.setOnGameChangeListener(_onGameChangeListener);
 		_rooms.add(room);
 		_userToRoom.put(user, room);
 		if (_onRoomChangeListener != null)
@@ -149,7 +162,7 @@ public class TTTConsole {
 			_onRoomChangeListener.call(this);
 	}
 
-	public boolean moveGame(TTTUser owner, TTTUser mover, int dotIndex) {
-		return false;
+	public boolean moveGame(TTTUser mover, TTTRoom room, int dotIndex) {
+		return room.move(mover, dotIndex);
 	}
 }
