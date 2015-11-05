@@ -6,6 +6,9 @@
 
 package ee4216;
 
+import java.util.*;
+import org.json.simple.*;
+
 public class TTTGame {
 	// _dots save the states of the game
 	// _dots = 1 means owner
@@ -19,10 +22,35 @@ public class TTTGame {
 	static int OWNER_MARK = 1;
 	static int PLAYER_MARK = -1;
 
+	private int turn = OWNER_MARK; // owner first
+
+
+	private TTTCallback _onGameChangeListener;
+
 	public TTTGame() {
 		for (int i = 0; i < 3; ++i)
 			for (int j = 0; j < 3; ++j)
 				_dots[i][j] = 0;
+	}
+
+	public void setOnGameChangeListener(final TTTCallback onGameChangeListener) {
+		_onGameChangeListener = onGameChangeListener;
+		// call to initialize canvas
+		if (_onGameChangeListener != null)
+			_onGameChangeListener.call(this);
+	}
+
+	public JSONObject toJSONObject() {
+		JSONObject obj = new JSONObject();
+		
+		JSONArray ownerJSONArray = new JSONArray(), playerJSONArray = new JSONArray();
+		for (int i: getOwnerDots()) ownerJSONArray.add(i);
+		for (int i: getPlayerDots()) playerJSONArray.add(i);
+		obj.put("owner", ownerJSONArray);
+		obj.put("player", playerJSONArray);
+		obj.put("result", checkResult());
+
+		return obj;
 	}
 
 	// return 1d array of 0-8 index dots
@@ -92,8 +120,11 @@ public class TTTGame {
 	private boolean move(int mark, int dotIndex) {
 		int i = dotIndex / 3;
 		int j = dotIndex % 3;
-		if (_dots[i][j] != 0) return false;
+		if (_dots[i][j] != 0 || turn != mark) return false;
 		_dots[i][j] = mark;
+		if (_onGameChangeListener != null)
+			_onGameChangeListener.call(this);
+		turn = -turn;
 		return true;
 	}
 

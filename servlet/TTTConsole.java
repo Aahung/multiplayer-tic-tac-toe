@@ -17,7 +17,7 @@ public class TTTConsole {
 	private static Map<TTTUser, TTTRoom> _userToRoom = new HashMap<TTTUser, TTTRoom>();
 
 	private TTTCallback _onRoomChangeListener, _onUserChangeListener;
-	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener, _onGameChangeListener;
 
 	public TTTConsole() {
 		_rooms = new ArrayList<TTTRoom>();
@@ -38,6 +38,19 @@ public class TTTConsole {
 				if (_onRoomChangeListener != null)
 					_onRoomChangeListener.call(sender);
 				onRoomStateChangeListener.call(sender, room);
+			}
+		};
+	}
+
+	public void setOnGameChangeListener(final TTTCallback1P<TTTRoom> onGameChangeListener) {
+		_onGameChangeListener = new TTTCallback1P<TTTRoom>() {
+			@Override public void call(Object sender, TTTRoom room) {
+				if (room.getGame().checkResult() != 0) {
+					// game states change
+					if (_onRoomStateChangeListener != null)
+						_onRoomStateChangeListener.call(sender, room);
+				}
+				onGameChangeListener.call(sender, room);
 			}
 		};
 	}
@@ -123,6 +136,7 @@ public class TTTConsole {
 		
 		TTTRoom room = new TTTRoom(user);
 		room.setOnRoomStateChangeListener(_onRoomStateChangeListener);
+		room.setOnGameChangeListener(_onGameChangeListener);
 		_rooms.add(room);
 		_userToRoom.put(user, room);
 		if (_onRoomChangeListener != null)
@@ -149,7 +163,7 @@ public class TTTConsole {
 			_onRoomChangeListener.call(this);
 	}
 
-	public boolean moveGame(TTTUser owner, TTTUser mover, int dotIndex) {
-		return false;
+	public boolean moveGame(TTTUser mover, TTTRoom room, int dotIndex) {
+		return room.move(mover, dotIndex);
 	}
 }

@@ -35,7 +35,7 @@ public class TTTServlet extends WebSocketServlet{
 
     // callbacks
     public TTTCallback _onRoomChangeListener, _onUserChangeListener;
-    public TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+    public TTTCallback1P<TTTRoom> _onRoomStateChangeListener, _onGameChangeListener;
 
     public TTTServlet() {
 
@@ -73,7 +73,29 @@ public class TTTServlet extends WebSocketServlet{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                System.out.println("onRoomChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
+                System.out.println("onRoomStateChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
+            }
+        };
+
+        _onGameChangeListener = new TTTCallback1P<TTTRoom>() {
+            @Override
+            public void call(Object sender, TTTRoom room) {
+                TTTUser owner = room.getOwner();
+                TTTUser player = room.getPlayer();
+
+                JSONObject roomObj = new JSONObject();
+                roomObj.put("type", "the_game");
+                roomObj.put("game", room.getGame().toJSONObject());
+                roomObj.put("room", room.toJSONObject());
+
+                try {
+                    _userToTTTMIB.get(owner).myoutbound.writeTextMessage(CharBuffer.wrap(roomObj.toString()));
+                    if (player != null)
+                        _userToTTTMIB.get(player).myoutbound.writeTextMessage(CharBuffer.wrap(roomObj.toString()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("onGameChange called from object: " + Integer.toHexString(System.identityHashCode(sender)));
             }
         };
 
@@ -81,6 +103,7 @@ public class TTTServlet extends WebSocketServlet{
         _gameConsole.setOnRoomChangeListener(_onRoomChangeListener);
         _gameConsole.setOnUserChangeListener(_onUserChangeListener);
         _gameConsole.setOnRoomStateChangeListener(_onRoomStateChangeListener);
+        _gameConsole.setOnGameChangeListener(_onGameChangeListener);
 
         // setup beacon sending task
         Timer timer = new Timer();
@@ -234,7 +257,12 @@ public class TTTServlet extends WebSocketServlet{
                         TTTRoom room = _gameConsole.getRoomByUser(user);
                         _gameConsole.quitRoom(user, room);
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
-                    }
+                    } else if (command.equals("move_game")) {
+                        int dotIndex = ((Long)obj.get("dot_index")).intValue();
+                        TTTRoom room = _gameConsole.getRoomByUser(user);
+                        if (!_gameConsole.moveGame(user, room, dotIndex))
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The move is invalid.\"}"));
+                    } 
                 }
                 
             } catch (ParseException e) {
