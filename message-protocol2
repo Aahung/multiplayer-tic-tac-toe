@@ -1,0 +1,42 @@
+//?is there a thing called room identifier?
+
+//permitted to start the game (after waiting=0)
+msg{
+  "type": "start",
+  "start": [{
+     "users": ..,..
+	}]}
+	
+//permitted to end the game (either game cancelled or finished)
+msg{
+  "type": "end",
+  "end": [{
+    "user": ..
+  }]}	
+	
+//kick out one user
+msg{
+  "type":"kick",
+  "kick":[{
+    "user":..
+    }]
+  }
+  
+//the user is permitted to leave the game
+msg{
+  "type":"quit",
+  "quit":[{
+    "users":..
+    }]
+}
+
+//the user is permitted to pause the game
+msg{
+  "type":"stop",
+  "stop":[{
+    "users":..,..
+  }]
+}
+  
+  
+	
