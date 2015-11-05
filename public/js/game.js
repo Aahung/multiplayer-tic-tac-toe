@@ -77,9 +77,14 @@ function onReceiveMessage(msg) {
             var u = new User(user.nickname, user.image, user.type);
             u.draw($('#user-list')[0]);
         }
-    } else if (msg.type == "game") {
-        if (msg.subtype == "update") {
-            drawCanvas(msg.owner, msg.player);
+    } else if (msg.type == "the_game") {
+        drawCanvas(msg.game.owner, msg.game.player);
+        if (msg.game.result != 0) {
+            if (msg.room.owner == _nickname && msg.game.result == 1) {
+                alert("You win!");
+            } else {
+                alert("You lose!");
+            }
         }
     } else if (msg.type == "msg") {
         if (msg.level == "alert")
@@ -169,20 +174,25 @@ function validateNickname() {
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
     var ctx = c.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.clearRect(0, 0, c.width, c.height);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, c.width, c.height);
 
     // draw grid
-    ctx.lineWidth = 2;
+    ctx.beginPath();
     ctx.moveTo(0, c.height / 3.0);
     ctx.lineTo(c.width, c.height / 3.0);
     ctx.stroke();
+    ctx.beginPath();
     ctx.moveTo(0, 2 * c.height / 3.0);
     ctx.lineTo(c.width, 2 * c.height / 3.0);
     ctx.stroke();
+    ctx.beginPath();
     ctx.moveTo(c.width / 3.0, 0);
     ctx.lineTo(c.width / 3.0, c.height);
     ctx.stroke();
+    ctx.beginPath();
     ctx.moveTo(2 * c.width / 3.0, 0);
     ctx.lineTo(2 * c.width / 3.0, c.height);
     ctx.stroke();
@@ -206,9 +216,11 @@ function drawCanvas(ownerDots, playerDots) {
         var col = playerDots[i] - 3 * row;
         var centerX = (1 + 2 * col) * c.width / 6.0;
         var centerY = (1 + 2 * row) * c.height / 6.0;
+        ctx.beginPath();
         ctx.moveTo(centerX - markRadius, centerY - markRadius);
         ctx.lineTo(centerX + markRadius, centerY + markRadius);
         ctx.stroke();
+        ctx.beginPath();
         ctx.moveTo(centerX + markRadius, centerY - markRadius);
         ctx.lineTo(centerX - markRadius, centerY + markRadius);
         ctx.stroke();

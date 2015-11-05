@@ -18,7 +18,7 @@ public class TTTRoom {
 	private State _state;
 	private TTTUser _owner, _player;
 	private TTTGame _game;
-	private TTTCallback1P<TTTRoom> _onRoomStateChangeListener;
+	private TTTCallback _onRoomStateChangeListener, _onGameChangeListener;
 
 	public TTTRoom(TTTUser owner) {
 		_state = State.WAITING;
@@ -28,7 +28,26 @@ public class TTTRoom {
 	}
 
 	public void setOnRoomStateChangeListener(final TTTCallback1P<TTTRoom> onRoomStateChangeListener) {
-		_onRoomStateChangeListener = onRoomStateChangeListener;
+		final TTTRoom _this = this;
+		_onRoomStateChangeListener = new TTTCallback() {
+			@Override public void call(Object sender) {
+				onRoomStateChangeListener.call(sender, _this);
+			}
+		};
+	}
+
+	public void setOnGameChangeListener(final TTTCallback1P<TTTRoom> onGameChangeListener) {
+		final TTTRoom _this = this;
+		_onGameChangeListener = new TTTCallback() {
+			@Override public void call(Object sender) {
+				if (_game.checkResult() != 0) {
+					// game states change
+					if (_onRoomStateChangeListener != null)
+						_onRoomStateChangeListener.call(_this);
+				}
+				onGameChangeListener.call(sender, _this);
+			}
+		};
 	}
 
 	public JSONObject toJSONObject() {
@@ -40,6 +59,10 @@ public class TTTRoom {
 			obj.put("player", _player.getNickname());
 
 		return obj;
+	}
+
+	public TTTGame getGame() {
+		return _game;
 	}
 
 	public TTTUser getOwner() {
@@ -54,12 +77,25 @@ public class TTTRoom {
 		return _state == State.WAITING;
 	}
 
+	public boolean move(TTTUser mover, int dotIndex) {
+		if (getOwner() == mover) {
+			return _game.ownerMove(dotIndex);
+		} else if (getPlayer() == mover) {
+			return _game.playerMove(dotIndex);
+		} else {
+			return false;
+		}
+	}
+
 	public boolean join(TTTUser user) {
 		if (_player == null) {
 			_player = user;
 			_state = State.PLAYING;
 			if (_onRoomStateChangeListener != null)
-				_onRoomStateChangeListener.call(this, this);
+				_onRoomStateChangeListener.call(this);
+			// let play!
+			_game = new TTTGame();
+			_game.setOnGameChangeListener(_onGameChangeListener);
 			return true;
 		}
 		return false;
@@ -76,6 +112,6 @@ public class TTTRoom {
 			_state = State.WAITING;
 		}
 		if (_onRoomStateChangeListener != null)
-			_onRoomStateChangeListener.call(this, this);
+			_onRoomStateChangeListener.call(this);
 	}
 }
