@@ -6,6 +6,7 @@
 function User(nickname, image, type) {
     this.nickname = nickname;
     this.image = image;
+    if (!this.image) this.image = "images/profile-icon-50.png";
     this.type = type;
 }
 

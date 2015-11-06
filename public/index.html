@@ -21,9 +21,9 @@
     </div>
     <div class="large-3 columns">
         <h1>Online Users</h1>
-        <ul id="user-list">
+        <div id="user-list">
             <!-- dynamic -->
-        </ul>
+        </div>
     </div>
 </div>
 
@@ -74,9 +74,9 @@
 </script>
 <!-- user template -->
 <script id="user-template" type="text/template">
-    <li>
-        {{=it.nickname}}-{{=it.image}}-{{=it.type}}
-    </li>
+    <div class="user-panel">
+        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span>
+    </div>
 </script>
 
 <!-- JQuery -->
