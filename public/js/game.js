@@ -66,7 +66,7 @@ function onReceiveMessage(msg) {
         for (var i = 0; i < msg.rooms.length; ++i) {
             var room = msg.rooms[i];
             var r = new Room(room.waiting, room.owner);
-            if (!room.waiting) r.player = room.player;
+            if (room.player) r.setPlayer(room.player);
             r.draw($('#room-list')[0], joinRoom);
         }
     } else if (msg.type == "user") {
@@ -80,8 +80,8 @@ function onReceiveMessage(msg) {
     } else if (msg.type == "the_game") {
         drawCanvas(msg.game.owner, msg.game.player);
         if (msg.game.result != 0) {
-            if (msg.room.owner == _nickname && msg.game.result == 1
-                || msg.room.player == _nickname && msg.game.result == -1) {
+            if (msg.room.owner.nickname == _nickname && msg.game.result == 1
+                || msg.room.player.nickname == _nickname && msg.game.result == -1) {
                 alert("You win!");
             } else {
                 alert("You lose!");
@@ -106,12 +106,12 @@ function onReceiveMessage(msg) {
     }
 }
 
-function joinRoom(ownerNickname) {
+function joinRoom(owner) {
     // send to server to join the room
     var msg = {
         "type": "command",
         "command": "join_room",
-        "owner": ownerNickname
+        "owner": owner.nickname
     };
 
     if (webSocketReady()) {
