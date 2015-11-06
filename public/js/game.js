@@ -82,9 +82,9 @@ function onReceiveMessage(msg) {
         if (msg.game.result != 0) {
             if (msg.room.owner.nickname == _nickname && msg.game.result == 1
                 || msg.room.player.nickname == _nickname && msg.game.result == -1) {
-                alert("You win!");
+                $('#win-modal').foundation('reveal', 'open');
             } else {
-                alert("You lose!");
+                $('#lose-modal').foundation('reveal', 'open');
             }
         }
     } else if (msg.type == "msg") {
