@@ -57,6 +57,8 @@
         </div>
         <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
     </form>
+    <!-- admin entry -->
+    <div class="text-center">[<a id="admin-button" href="#">admin entrance</a>]</div>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
@@ -69,6 +71,13 @@
 <div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
     <h1>So sad, you lose!</h1>
     <img src="images/sad.jpg" style="max-height: 70%; max-width: 70%" />
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
+    <h1>Password please</h1>
+    <input id="admin-password" type="password" />
+    <a id="admin-login-button" class="button" href="#">Go</a>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
@@ -94,7 +103,7 @@
 <!-- user template -->
 <script id="user-template" type="text/template">
     <div class="user-panel">
-        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span>
+        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span><a class="admin-only" href="#">&#215;</a>
     </div>
 </script>
 

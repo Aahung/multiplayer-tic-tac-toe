@@ -102,6 +102,11 @@ function onReceiveMessage(msg) {
             $('#game-block').fadeIn();
         } else if (msg.command == "room_quited") {
             $('#game-block').fadeOut();
+        } 
+
+        // start to handle admin methods
+        else if (msg.command == "admin_authed") {
+            $("#admin-login-modal").foundation('reveal', 'close');
         }
     }
 }
@@ -297,4 +302,23 @@ $(function() {
     // add listener to canvas
     var canvas = document.getElementById("game-canvas");
     canvas.addEventListener("mouseup", onCanvasMouseUp, false);
+
+    // admin
+    $('#admin-button').click(function() {
+        _nickname = "admin";
+        $('#admin-login-modal').foundation('reveal', 'open');
+    });
+
+    $('#admin-login-button').click(function() {
+        var password = $('#admin-password').val();
+        var msg = {
+            "type": "admin",
+            "command": "auth",
+            "password": password 
+        };
+
+        if (webSocketReady()) {
+            webSocketSend(msg);
+        }
+    });
 });
