@@ -6,6 +6,7 @@
 function User(nickname, image, type) {
     this.nickname = nickname;
     this.image = image;
+    if (!this.image) this.image = "images/profile-icon-50.png";
     this.type = type;
 }
 
@@ -16,5 +17,11 @@ User.prototype.render = doT.compile($('#user-template').html());
 User.prototype.draw = function(userList) {
     var html = User.prototype.render(this);
     this.element = $(html);
+
+    // admin controllers
+    $(this.element).hover(function() {
+    	
+    });
+    
     $(userList).append(this.element);
 };
