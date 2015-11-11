@@ -89,12 +89,14 @@
             <div class="room-panel panel {{? it.waiting }} callout {{?}} radius text-center">
                 <span class="label">{{? it.waiting }}waiting{{??}}playing{{?}}</span>
                 <hr/>
+                <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.owner.nickname}}')">&#215;</a>
                 <img style="height: 25px" src="{{=it.owner.image}}"/>
                 <span class="label secondary">{{=it.owner.nickname}}</span>
                 {{?!it.waiting}} 
                     <strong>VS</strong>
                     <span class="label secondary">{{=it.player.nickname}}</span>
                     <img style="height: 25px" src="{{=it.player.image}}"/>
+                    <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.player.nickname}}')">&#215;</a>
                 {{?}}
             </div>
         </a>
@@ -103,7 +105,7 @@
 <!-- user template -->
 <script id="user-template" type="text/template">
     <div class="user-panel">
-        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span><a class="admin-only" href="#">&#215;</a>
+        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span><a class="admin-only" href="#" onclick="__kickoutUserFromConsole('{{=it.nickname}}')">&#215;</a>
     </div>
 </script>
 
