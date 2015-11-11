@@ -69,6 +69,7 @@ function onReceiveMessage(msg) {
             if (room.player) r.setPlayer(room.player);
             r.draw($('#room-list')[0], joinRoom);
         }
+        __updateAdminControls();
     } else if (msg.type == "user") {
         // update users
         $('#user-list').empty();
@@ -77,6 +78,7 @@ function onReceiveMessage(msg) {
             var u = new User(user.nickname, user.image, user.type);
             u.draw($('#user-list')[0]);
         }
+        __updateAdminControls();
     } else if (msg.type == "the_game") {
         drawCanvas(msg.game.owner, msg.game.player);
         if (msg.game.result != 0) {
@@ -102,6 +104,15 @@ function onReceiveMessage(msg) {
             $('#game-block').fadeIn();
         } else if (msg.command == "room_quited") {
             $('#game-block').fadeOut();
+        } else if (msg.command == "kicked_game") {
+            _nickname = undefined;
+            $('#signup-modal').foundation('reveal', 'open');
+        }
+
+        // start to handle admin methods
+        else if (msg.command == "admin_authed") {
+            $("#admin-login-modal").foundation('reveal', 'close');
+            __updateAdminControls();
         }
     }
 }
@@ -150,6 +161,8 @@ function validateNickname() {
         alert('Don\'t leave your nickname blank.');
         return;
     }
+
+    nickname = escape(nickname); // just in case
 
     // save nickname into the browser if localstorage is available
     if(typeof(Storage) !== "undefined") {
@@ -256,6 +269,57 @@ function onCanvasMouseUp(event) {
     }
 }
 
+/*
+    Admin
+    all admin functions start with __
+    to better distinguished from other functions
+*/
+
+function __updateAdminControls() {
+    if (_nickname == "__admin__") {
+        $(".admin-only").show();
+    } else {
+        $(".admin-only").hide();
+    }
+}
+
+function __validateAdminPassword() {
+    var password = $('#admin-password').val();
+    var msg = {
+        "type": "admin",
+        "command": "auth",
+        "password": password 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromConsole(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_console",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromGame(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_game",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
 /* 
     initialization
 */
@@ -297,4 +361,20 @@ $(function() {
     // add listener to canvas
     var canvas = document.getElementById("game-canvas");
     canvas.addEventListener("mouseup", onCanvasMouseUp, false);
+
+    // admin
+    $('#admin-button').click(function() {
+        _nickname = "__admin__";
+        $('#admin-login-modal').foundation('reveal', 'open');
+        // focus on the input field
+        $('#admin-password').focus();
+    });
+
+    $('#admin-login-button').click(__validateAdminPassword);
+    $('#admin-password').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            __validateAdminPassword();
+        }
+    });
 });

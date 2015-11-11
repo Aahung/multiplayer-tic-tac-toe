@@ -24,7 +24,9 @@ Room.prototype.draw = function(roomList, onClickListener) {
     var html = Room.prototype.render(this);
     this.element = $(html);
     var owner = this.owner;
-    $(this.element).click(function() {
+    $(this.element).click(function(e) {
+        if( e.target != this ) 
+            return;
     	onClickListener(owner);
     });
     $(roomList).append(this.element);

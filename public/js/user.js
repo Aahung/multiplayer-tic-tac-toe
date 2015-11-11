@@ -17,5 +17,11 @@ User.prototype.render = doT.compile($('#user-template').html());
 User.prototype.draw = function(userList) {
     var html = User.prototype.render(this);
     this.element = $(html);
+
+    // admin controllers
+    $(this.element).hover(function() {
+    	
+    });
+    
     $(userList).append(this.element);
 };
