@@ -78,6 +78,7 @@ function onReceiveMessage(msg) {
             var u = new User(user.nickname, user.image, user.type);
             u.draw($('#user-list')[0]);
         }
+        $("#user-count-label").text(msg.users.length);
         __updateAdminControls();
     } else if (msg.type == "the_game") {
         drawCanvas(msg.game.owner, msg.game.player);
