@@ -29,7 +29,6 @@ import ee4216.*;
 public class TTTServlet extends WebSocketServlet{
     private static final long serialVersionUID = 1L;
     private static ArrayList<TTTMessageInbound> mmiList = new ArrayList<TTTMessageInbound>();
-    private static ArrayList<TTTMessageInbound> _adminMmiList = new ArrayList<TTTMessageInbound>();
     private static Map<TTTUser, TTTMessageInbound> _userToTTTMIB = new HashMap<TTTUser, TTTMessageInbound>();
 
     private TTTConsole _gameConsole;
@@ -167,7 +166,7 @@ public class TTTServlet extends WebSocketServlet{
 
     private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
-        TTTUser user;
+        public TTTUser user;
         private final static String _adminPassword = "eeee4216";
         private boolean _isAdmin = false;
 
@@ -279,7 +278,25 @@ public class TTTServlet extends WebSocketServlet{
                         }
                     } else {
                         if (_isAdmin) {
-                            
+                            if (command.equals("kick_user_console") || command.equals("kick_user_game")) {
+                                String nickname = obj.get("nickname").toString();
+                                TTTUser theUser = _gameConsole.searchUser(nickname);
+                                if (theUser != null) {
+                                    TTTMessageInbound theMessageInBound = _userToTTTMIB.get(theUser);
+                                    if (command.equals("kick_user_console")) {
+                                        theMessageInBound.user = null;
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"You are kicked out by admin.\"}"));
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"kicked_game\"}"));
+                                        _userToTTTMIB.remove(theUser);
+                                        _gameConsole.removeUser(theUser);
+                                    } else if (command.equals("kick_user_game")) {
+                                        TTTRoom theRoom = _gameConsole.getRoomByUser(theUser);
+                                        _gameConsole.quitRoom(theUser, theRoom);
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"You are kicked out from the room by admin.\"}"));
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
+                                    }
+                                }
+                            }
                         } else {
                             myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Unauthorized.\"}"));
                         }

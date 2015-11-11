@@ -104,7 +104,10 @@ function onReceiveMessage(msg) {
             $('#game-block').fadeIn();
         } else if (msg.command == "room_quited") {
             $('#game-block').fadeOut();
-        } 
+        } else if (msg.command == "kicked_game") {
+            _nickname = undefined;
+            $('#signup-modal').foundation('reveal', 'open');
+        }
 
         // start to handle admin methods
         else if (msg.command == "admin_authed") {
