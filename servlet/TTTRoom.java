@@ -113,5 +113,6 @@ public class TTTRoom {
 		}
 		if (_onRoomStateChangeListener != null)
 			_onRoomStateChangeListener.call(this);
+		_game.reset();
 	}
 }
