@@ -25,7 +25,7 @@ Room.prototype.draw = function(roomList, onClickListener) {
     this.element = $(html);
     var owner = this.owner;
     $(this.element).click(function(e) {
-        if( e.target != this ) 
+        if (e.target.tagName.toLowerCase() == 'a') // avoid catch inside button 
             return;
     	onClickListener(owner);
     });
