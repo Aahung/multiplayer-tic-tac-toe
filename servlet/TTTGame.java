@@ -140,5 +140,7 @@ public class TTTGame {
 			for (int j = 0; j < 3; ++j)
 				_dots[i][j] = 0;
 		turn = OWNER_MARK;
+		if (_onGameChangeListener != null)
+			_onGameChangeListener.call(this);
 	}
 }
