@@ -99,6 +99,8 @@ function onReceiveMessage(msg) {
             // successfully registed the nickname
             _nickname = _nicknameCandidate;
             $('#signup-modal').foundation('reveal', 'close');
+        } else if (msg.command == "nickname_exist") {
+            alert("This name is already been taken, sorry.");
         } else if (msg.command == "room_created") {
             $('#game-block').fadeIn();
         } else if (msg.command == "room_joined") {
