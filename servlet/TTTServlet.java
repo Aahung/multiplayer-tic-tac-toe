@@ -256,6 +256,16 @@ public class TTTServlet extends WebSocketServlet{
                             }
                         } else if (command.equals("quit_room")) {
                             TTTRoom room = _gameConsole.getRoomByUser(user);
+                            TTTUser theOtherUser = null; 
+                            if (room.getOwner() == user) {
+                                theOtherUser = room.getPlayer();
+                            } else {
+                                theOtherUser = room.getOwner();
+                            }
+                            TTTMessageInbound theOtherMessageInBound = _userToTTTMIB.get(theOtherUser);
+                            if (theOtherMessageInBound != null) {
+                                theOtherMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The other player quits.\"}"));
+                            }
                             _gameConsole.quitRoom(user, room);
                             myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
                         } else if (command.equals("move_game")) {
