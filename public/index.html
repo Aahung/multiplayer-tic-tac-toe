@@ -9,35 +9,22 @@
     <link rel="stylesheet" href="lib/foundation-5/css/foundation.min.css"/>
     <link rel="stylesheet" href="css/game.css"/>
     <script src="lib/foundation-5/js/vendor/modernizr.js"></script>
+	<script src="lib/fblogin.js"></script>
 </head>
 <body>
 
-<!-- Facebook SDK -->
-<script type="text/javascript" src="js/facebook.js"></script>
-
-<div class="row">
-    <div class="large-12 columns">
-        <h1>Multiplayer Tic-Tac-Toe</h1>
-        <div
-            class="fb-like"
-            data-share="true"
-            data-width="450"
-            data-show-faces="true">
-        </div>
-    </div>
-</div>
 <div id="console-block" class="row">
-    <div class="large-9 columns">
-        <h2>Rooms <a href="#" onclick="createRoom()">+</a></h2>
-        <ul id="room-list" class="large-block-grid-3">
+    <div class="large-8 columns">
+        <h3>Rooms <a href="#" onclick="createRoom()">+</a></h3>
+        <ul id="room-list" class="large-block-grid-2">
             <!-- dynamic -->
         </ul>
     </div>
-    <div class="large-3 columns">
-        <h2>Online Users</h2>
-        <ul id="user-list">
+    <div class="large-4 columns">
+        <h3>Online Users <span id="user-count-label" class="label info round">0</span></h3>
+        <div id="user-list">
             <!-- dynamic -->
-        </ul>
+        </div>
     </div>
 </div>
 
@@ -63,14 +50,41 @@
                     <div class="small-9 columns">
                         <input id="nickname-input" type="text" placeholder="Will Smiths">
                     </div>
-                    <div class="small-3 columns">
+					<div class="small-3 columns">
                         <a href="#" onclick="validateNickname()" class="button postfix">Go</a>
                     </div>
+					<!--<div>
+						<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+						</fb:login-button>
+					</div> -->
+							
+					<div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="true" data-auto-logout-link="true"></div>
                 </div>
             </div>
         </div>
         <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
     </form>
+    <!-- admin entry -->
+    <div class="text-center">[<a id="admin-button" href="#">admin entrance</a>]</div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+    <h1>Winner is you!</h1>
+    <img src="images/happy.jpg" style="max-height: 70%; max-width: 70%" />
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+    <h1>So sad, you lose!</h1>
+    <img src="images/sad.jpg" style="max-height: 70%; max-width: 70%" />
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
+    <h1>Password please</h1>
+    <input id="admin-password" type="password" />
+    <a id="admin-login-button" class="button" href="#">Go</a>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
@@ -81,16 +95,25 @@
         <a href="#">
             <div class="room-panel panel {{? it.waiting }} callout {{?}} radius text-center">
                 <span class="label">{{? it.waiting }}waiting{{??}}playing{{?}}</span>
-                <p>{{=it.owner}}{{?!it.waiting}} <i>VS</i> {{=it.player}}{{?}}</p>
+                <hr/>
+                <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.owner.nickname}}')">&#215;</a>
+                <img style="height: 25px" src="{{=it.owner.image}}"/>
+                <span class="label secondary">{{=it.owner.nickname}}</span>
+                {{?!it.waiting}} 
+                    <strong>VS</strong>
+                    <span class="label secondary">{{=it.player.nickname}}</span>
+                    <img style="height: 25px" src="{{=it.player.image}}"/>
+                    <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.player.nickname}}')">&#215;</a>
+                {{?}}
             </div>
         </a>
     </li>
 </script>
 <!-- user template -->
 <script id="user-template" type="text/template">
-    <li>
-        {{=it.nickname}}-{{=it.image}}-{{=it.type}}
-    </li>
+    <div class="user-panel">
+        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span><a class="admin-only" href="#" onclick="__kickoutUserFromConsole('{{=it.nickname}}')">&#215;</a>
+    </div>
 </script>
 
 <!-- JQuery -->
