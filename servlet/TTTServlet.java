@@ -148,6 +148,30 @@ public class TTTServlet extends WebSocketServlet{
         broadcastMessage("{\"type\":\"msg\",\"level\":\"log\",\"content\":\"Server time " + timeStamp + ".\"}");
     }
 
+    private void quitRoom(TTTUser user) {
+        TTTRoom room = _gameConsole.getRoomByUser(user);
+
+        if (room != null) {
+            // notify another user in the room
+            TTTUser theOtherUser = null;
+            if (room.getOwner() == user) {
+                theOtherUser = room.getPlayer();
+            } else {
+                theOtherUser = room.getOwner();
+            }
+            TTTMessageInbound theOtherMessageInBound = _userToTTTMIB.get(theOtherUser);
+            if (theOtherMessageInBound != null) {
+                try {
+                    theOtherMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The other player quits.\"}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            _gameConsole.quitRoom(user, room);
+        }
+    }
+
     private JSONObject getUserListAsJSONObject() {
         JSONObject usersObj = new JSONObject();
         usersObj.put("type", "user");
@@ -197,11 +221,13 @@ public class TTTServlet extends WebSocketServlet{
             else 
                 System.out.println(String.format("broadcasting to %s",
                                                  Integer.toHexString(System.identityHashCode(this))));
+            
+            mmiList.remove(this);
+            quitRoom(user); // try to quit any room the user is currently in
             TTTUser userToRemove = user;
             user = null;
             _gameConsole.removeUser(userToRemove);
             _userToTTTMIB.remove(userToRemove);
-            mmiList.remove(this);
         }
 
         @Override
@@ -255,18 +281,7 @@ public class TTTServlet extends WebSocketServlet{
                                 }
                             }
                         } else if (command.equals("quit_room")) {
-                            TTTRoom room = _gameConsole.getRoomByUser(user);
-                            TTTUser theOtherUser = null; 
-                            if (room.getOwner() == user) {
-                                theOtherUser = room.getPlayer();
-                            } else {
-                                theOtherUser = room.getOwner();
-                            }
-                            TTTMessageInbound theOtherMessageInBound = _userToTTTMIB.get(theOtherUser);
-                            if (theOtherMessageInBound != null) {
-                                theOtherMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The other player quits.\"}"));
-                            }
-                            _gameConsole.quitRoom(user, room);
+                            quitRoom(user);
                             myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
                         } else if (command.equals("move_game")) {
                             int dotIndex = ((Long)obj.get("dot_index")).intValue();
