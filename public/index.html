@@ -1,131 +1,412 @@
-<!doctype html>
-<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Multiplayer Tic-Tac-Toe</title>
-    <link rel="stylesheet" href="lib/foundation-5/css/normalize.css"/>
-    <link rel="stylesheet" href="lib/foundation-5/css/foundation.min.css"/>
-    <link rel="stylesheet" href="css/game.css"/>
-    <script src="lib/foundation-5/js/vendor/modernizr.js"></script>
-	<script src="lib/fblogin.js"></script>
-</head>
-<body>
+/*
+    main game js
+    EE 4216 Group 4
+*/
 
-<div id="console-block" class="row">
-    <div class="large-8 columns">
-        <h3>Rooms <a href="#" onclick="createRoom()">+</a></h3>
-        <ul id="room-list" class="large-block-grid-2">
-            <!-- dynamic -->
-        </ul>
-    </div>
-    <div class="large-4 columns">
-        <h3>Online Users <span id="user-count-label" class="label info round">0</span></h3>
-        <div id="user-list">
-            <!-- dynamic -->
-        </div>
-    </div>
-</div>
+/*
+    Websocket
+*/
 
-<div id="game-block" style="display: none">
-    <div>
-        <a href="#" class="button alert" onclick="quitRoom()">Quit</a>
-    </div>
-    <div id="canvas-block" class="text-center">
-        <canvas id="game-canvas" width="400" height="400" style="box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, .2)"></canvas>
-    </div>
-</div>
+var _ws;
 
-<div id="signup-modal" class="reveal-modal" data-reveal aria-labelledby="Sign Up" aria-hidden="true" role="dialog">
-    <h2>Hey, Wel<b>COME</b> to <u>Multi</u>Player <b>T</b>ic-<b>T</b>ac-<b>T</b>oe</h2>
-    <hr />
-    <div class="text-center">
-        <img src="images/gamepad.png" style="width: 20%; margin-bottom: 20px" />
-    </div>
-    <form id="signup-form" onsubmit="return false;">
-        <div class="row collapse postfix-round">
-            <div class="large-6 large-offset-3 columns">
-                <div class="row">
-                    <div class="small-9 columns">
-                        <input id="nickname-input" type="text" placeholder="Will Smiths">
-                    </div>
-					<div class="small-3 columns">
-                        <a href="#" onclick="validateNickname()" class="button postfix">Go</a>
-                    </div>
-					<!--<div>
-						<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-						</fb:login-button>
-					</div> -->
-							
-					<div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="true" data-auto-logout-link="true"></div>
-                </div>
-            </div>
-        </div>
-        <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
-    </form>
-    <!-- admin entry -->
-    <div class="text-center">[<a id="admin-button" href="#">admin entrance</a>]</div>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+function webSocketReady() {
+    if (_ws && _ws.readyState == 1)
+        return true;
+    initWebSocket();
+    alert("Please check your network connection.");
+    return false;
+}
 
-<div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1>Winner is you!</h1>
-    <img src="images/happy.jpg" style="max-height: 70%; max-width: 70%" />
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+function webSocketSend(msg) {
+    _ws.send(JSON.stringify(msg));
+}
 
-<div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1>So sad, you lose!</h1>
-    <img src="images/sad.jpg" style="max-height: 70%; max-width: 70%" />
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+var onWebSocketOpen = function() {
+    console.log("[WebSocket] connected.");
+};
 
-<div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
-    <h1>Password please</h1>
-    <input id="admin-password" type="password" />
-    <a id="admin-login-button" class="button" href="#">Go</a>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+var onWebSocketClose = function() {
+    console.log("[WebSocket] disconnected.");
+};
 
-<!-- Templates -->
-<!-- room block template -->
-<script id="room-template" type="text/template">
-    <li>
-        <a href="#">
-            <div class="room-panel panel {{? it.waiting }} callout {{?}} radius text-center">
-                <span class="label">{{? it.waiting }}waiting{{??}}playing{{?}}</span>
-                <hr/>
-                <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.owner.nickname}}')">&#215;</a>
-                <img style="height: 25px" src="{{=it.owner.image}}"/>
-                <span class="label secondary">{{=it.owner.nickname}}</span>
-                {{?!it.waiting}} 
-                    <strong>VS</strong>
-                    <span class="label secondary">{{=it.player.nickname}}</span>
-                    <img style="height: 25px" src="{{=it.player.image}}"/>
-                    <a class="admin-only" href="#" onclick="__kickoutUserFromGame('{{=it.player.nickname}}')">&#215;</a>
-                {{?}}
-            </div>
-        </a>
-    </li>
-</script>
-<!-- user template -->
-<script id="user-template" type="text/template">
-    <div class="user-panel">
-        <img style="height: 25px" src="{{=it.image}}"/> <span class="label secondary">{{=it.nickname}}</span><a class="admin-only" href="#" onclick="__kickoutUserFromConsole('{{=it.nickname}}')">&#215;</a>
-    </div>
-</script>
+var onWebSocketMessage = function(e) {
+    console.log("[WebSocket] reveived message:");
+    console.log(e.data);
+    onReceiveMessage(JSON.parse(e.data));
+};
 
-<!-- JQuery -->
-<script src="lib/foundation-5/js/vendor/jquery.js"></script>
-<!-- foundation -->
-<script src="lib/foundation-5/js/foundation.min.js"></script>
-<!-- template engine: doT -->
-<script src="lib/doT.min.js"></script>
-<!-- Load classes -->
-<script src="js/room.js"></script>
-<script src="js/user.js"></script>
-<!-- main script file -->
-<script src="js/game.js"></script>
+function initWebSocket() {
+    var loc = window.location, new_uri;
+    if (loc.protocol === "https:") {
+        new_uri = "wss:";
+    } else {
+        new_uri = "ws:";
+    }
+    new_uri += "//" + loc.host;
+    new_uri += "/api";
 
-</html>
+    _ws = new WebSocket(new_uri);
+
+    // setup the listeners
+    _ws.onmessage = onWebSocketMessage;
+    _ws.onopen = onWebSocketOpen;
+    _ws.onclose = onWebSocketClose;
+}
+
+/*
+    interactions
+*/
+
+var _nickname, _nicknameCandidate;
+
+function onReceiveMessage(msg) {
+    if (msg.type == "room") {
+        // update rooms
+        $('#room-list').empty();
+        for (var i = 0; i < msg.rooms.length; ++i) {
+            var room = msg.rooms[i];
+            var r = new Room(room.waiting, room.owner);
+            if (room.player) r.setPlayer(room.player);
+            r.draw($('#room-list')[0], joinRoom);
+        }
+        __updateAdminControls();
+    } else if (msg.type == "user") {
+        // update users
+        $('#user-list').empty();
+        for (var i = 0; i < msg.users.length; ++i) {
+            var user = msg.users[i];
+            var u = new User(user.nickname, user.image, user.type);
+            u.draw($('#user-list')[0]);
+        }
+        $("#user-count-label").text(msg.users.length);
+        __updateAdminControls();
+    } else if (msg.type == "the_game") {
+        drawCanvas(msg.game.owner, msg.game.player);
+        if (msg.game.result != 0) {
+            if (msg.room.owner.nickname == _nickname && msg.game.result == 1
+                || msg.room.player.nickname == _nickname && msg.game.result == -1) {
+                $('#win-modal').foundation('reveal', 'open');
+            } else {
+                $('#lose-modal').foundation('reveal', 'open');
+            }
+        }
+    } else if (msg.type == "msg") {
+        if (msg.level == "alert")
+            alert(msg.content);
+        console.log(msg.content);
+    } else if (msg.type == "command") {
+        if (msg.command == "nickname_reserved") {
+            // successfully registed the nickname
+            _nickname = _nicknameCandidate;
+            $('#signup-modal').foundation('reveal', 'close');
+        } else if (msg.command == "room_created") {
+            $('#game-block').fadeIn();
+        } else if (msg.command == "room_joined") {
+            $('#game-block').fadeIn();
+        } else if (msg.command == "room_quited") {
+            $('#game-block').fadeOut();
+        } else if (msg.command == "kicked_game") {
+            _nickname = undefined;
+            $('#signup-modal').foundation('reveal', 'open');
+        }
+
+        // start to handle admin methods
+        else if (msg.command == "admin_authed") {
+            $("#admin-login-modal").foundation('reveal', 'close');
+            __updateAdminControls();
+        }
+    }
+}
+
+function joinRoom(owner) {
+    // send to server to join the room
+    var msg = {
+        "type": "command",
+        "command": "join_room",
+        "owner": owner.nickname
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function createRoom() {
+    // send to server to verify
+    var msg = {
+        "type": "command",
+        "command": "create_room" 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function quitRoom() {
+    // send to server to quit the room
+    var msg = {
+        "type": "command",
+        "command": "quit_room"
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function validateNickname() {
+    var nickname = $('#nickname-input').val();
+    console.log('nickname: ' + nickname + ' got');
+    if (!nickname || nickname.length == 0) {
+        alert('Don\'t leave your nickname blank.');
+        return;
+    }
+
+    nickname = escape(nickname); // just in case
+
+    // save nickname into the browser if localstorage is available
+    if(typeof(Storage) !== "undefined") {
+        try {
+            localStorage.setItem('nickname', nickname);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    _nicknameCandidate = nickname;
+    // send to server to verify
+    var msg = {
+        "type": "init",
+        "nickname": _nicknameCandidate
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function facebooklogin(String str) {
+    var nickname = str;
+    console.log('nickname: ' + nickname + ' got');
+    if (!nickname || nickname.length == 0) {
+        alert('Don\'t leave your nickname blank.');
+        return;
+    }
+
+    nickname = escape(nickname); // just in case
+
+    // save nickname into the browser if localstorage is available
+    if(typeof(Storage) !== "undefined") {
+        try {
+            localStorage.setItem('nickname', nickname);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    _nicknameCandidate = nickname;
+    // send to server to verify
+    var msg = {
+        "type": "init",
+        "nickname": _nicknameCandidate
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function drawCanvas(ownerDots, playerDots) {
+    var c = document.getElementById("game-canvas");
+    var ctx = c.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, c.width, c.height);
+
+    // draw grid
+    ctx.beginPath();
+    ctx.moveTo(0, c.height / 3.0);
+    ctx.lineTo(c.width, c.height / 3.0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 2 * c.height / 3.0);
+    ctx.lineTo(c.width, 2 * c.height / 3.0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(c.width / 3.0, 0);
+    ctx.lineTo(c.width / 3.0, c.height);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(2 * c.width / 3.0, 0);
+    ctx.lineTo(2 * c.width / 3.0, c.height);
+    ctx.stroke();
+
+    // draw owner circle
+    ctx.lineWidth = 10;
+    var markRadius = Math.min(c.height, c.width) / 8.0;
+    for (var i = 0; i < ownerDots.length; ++i) {
+        var row = Math.floor(ownerDots[i] / 3);
+        var col = ownerDots[i] - 3 * row;
+        var centerX = (1 + 2 * col) * c.width / 6.0;
+        var centerY = (1 + 2 * row) * c.height / 6.0;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, markRadius, 0, 2*Math.PI);
+        ctx.stroke();
+    }
+
+    // draw the cross
+    for (var i = 0; i < playerDots.length; ++i) {
+        var row = Math.floor(playerDots[i] / 3);
+        var col = playerDots[i] - 3 * row;
+        var centerX = (1 + 2 * col) * c.width / 6.0;
+        var centerY = (1 + 2 * row) * c.height / 6.0;
+        ctx.beginPath();
+        ctx.moveTo(centerX - markRadius, centerY - markRadius);
+        ctx.lineTo(centerX + markRadius, centerY + markRadius);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX + markRadius, centerY - markRadius);
+        ctx.lineTo(centerX - markRadius, centerY + markRadius);
+        ctx.stroke();
+    }
+}
+
+function onCanvasMouseUp(event) {
+    var c = document.getElementById("game-canvas");
+    var mouseX, mouseY;
+    if ( event.offsetX == null ) { // Firefox
+        mouseX = event.originalEvent.layerX;
+        mouseY = event.originalEvent.layerY;
+    } else {                       // Other browsers
+        mouseX = event.offsetX;
+        mouseY = event.offsetY;
+    }
+    var row = Math.floor(3 * mouseY / c.height);
+    var col = Math.floor(3 * mouseX / c.width);
+
+    var dotIndex = row * 3 + col;
+    console.log("dot " + dotIndex + " clicked.");
+
+    // send to server to verify the move
+    var msg = {
+        "type": "command",
+        "command": "move_game",
+        "dot_index": dotIndex
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+/*
+    Admin
+    all admin functions start with __
+    to better distinguished from other functions
+*/
+
+function __updateAdminControls() {
+    if (_nickname == "__admin__") {
+        $(".admin-only").show();
+    } else {
+        $(".admin-only").hide();
+    }
+}
+
+function __validateAdminPassword() {
+    var password = $('#admin-password').val();
+    var msg = {
+        "type": "admin",
+        "command": "auth",
+        "password": password 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromConsole(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_console",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromGame(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_game",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+/* 
+    initialization
+*/
+
+$(document).foundation();
+$(function() {
+
+    // load nickname if has
+    if(typeof(Storage) !== "undefined") {
+        try {
+            $('#nickname-input').val(localStorage.getItem('nickname'));
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    // modal
+    $('#signup-modal').foundation('reveal', 'open');
+    $(document).on('closed.fndtn.reveal', '[data-reveal]', function (e) {
+        var modal = $(this);
+        if (modal.attr('id') == 'signup-modal') {
+            if (!_nickname) {
+                $('#signup-modal').foundation('reveal', 'open');
+            }
+        }
+    });
+
+    // input enter trigger
+    $('#nickname-input').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            validateNickname();
+        }
+    });
+
+    // init websocket
+    initWebSocket();
+
+    // add listener to canvas
+    var canvas = document.getElementById("game-canvas");
+    canvas.addEventListener("mouseup", onCanvasMouseUp, false);
+
+    // admin
+    $('#admin-button').click(function() {
+        _nickname = "__admin__";
+        $('#admin-login-modal').foundation('reveal', 'open');
+        // focus on the input field
+        $('#admin-password').focus();
+    });
+
+    $('#admin-login-button').click(__validateAdminPassword);
+    $('#admin-password').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            __validateAdminPassword();
+        }
+    });
+});
