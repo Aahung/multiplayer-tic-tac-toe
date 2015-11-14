@@ -11,192 +11,212 @@
     <link rel="stylesheet" href="css/game.css"/>
     <link rel="stylesheet" href="css/animate.css"/>
     <script src="lib/foundation-5/js/vendor/modernizr.js"></script>
-        <style>
-           h1{
+    <style>
+        h1{
               font-family: cursive;
               font-size: 200%;          
              }
-           ul{
+        ul{
             font-family:cursive;
             font-size:50%;          
             }
  
-     .reveal-modal div{
+        .reveal-modal div{
         -webkit-animation-duration: 2s;       
         -webkit-animation-iteration-count: infinite;      
-     }
+         }
 
 
-    .reveal-modal {
+        .reveal-modal {
         background-image: url("images/background.jpg");
-    }
+        }
 
-    .reveal-modal p{
-        color: #FFFFFF;
-        font-family: Cursive;
-        font-size: 25px;
-    }
+        .reveal-modal p{
+            color: #FFFFFF;
+            font-family: Cursive;
+            font-size: 25px;
+        }
 
-input[type="text"]
-{
-    font-family:cursive;
-}
+        input[type="text"]
+        {
+            font-family:cursive;
+        }
 
-.transparent{
-    opacity: 0.3;
-    background:#ffffff;   
-     width: 100%;
-    height: 100%; 
-    position: absolute;
-      
-}
-.block{
-   margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
-    height: 100%;  
-    position: absolute;
-}
+        .transparent{
+            opacity: 0.3;
+            background:#ffffff;   
+             width: 100%;
+            height: 100%; 
+            position: absolute;
+              
+        }
+        .block{
+           margin-left: 10%;
+            margin-right: 10%;
+            width: 80%;
+            height: 100%;  
+            position: absolute;
+        }
 
-.postfix {
-    -moz-box-shadow: 3px 4px 0px 0px #8a2a21;
-    -webkit-box-shadow: 3px 4px 0px 0px #8a2a21;
-    box-shadow: 3px 4px 0px 0px #8a2a21;
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24437));
-    background:-moz-linear-gradient(top, #c62d1f 5%, #f24437 100%);
-    background:-webkit-linear-gradient(top, #c62d1f 5%, #f24437 100%);
-    background:-o-linear-gradient(top, #c62d1f 5%, #f24437 100%);
-    background:-ms-linear-gradient(top, #c62d1f 5%, #f24437 100%);
-    background:linear-gradient(to bottom, #c62d1f 5%, #f24437 100%);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24437',GradientType=0);
-    background-color:#c62d1f;
-    -moz-border-radius:18px;
-    -webkit-border-radius:18px;
-    border-radius:18px;
-    border:1px solid #d02718;
-    display:inline-block;
-    cursor:pointer;
-    color:#ffffff;
-    font-family:Arial;
-    font-size:17px;
-    padding:7px 25px;
-    text-decoration:none;
-    text-shadow:0px 1px 0px #810e05; 
-}
-.postfix:hover {
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f24437), color-stop(1, #c62d1f));
-    background:-moz-linear-gradient(top, #f24437 5%, #c62d1f 100%);
-    background:-webkit-linear-gradient(top, #f24437 5%, #c62d1f 100%);
-    background:-o-linear-gradient(top, #f24437 5%, #c62d1f 100%);
-    background:-ms-linear-gradient(top, #f24437 5%, #c62d1f 100%);
-    background:linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24437', endColorstr='#c62d1f',GradientType=0);
-    background-color:#f24437;
-   
-}
-.postfix:active {
-    position:relative;
-    top:1px;
-}
+        .postfix {
+            -moz-box-shadow: 3px 4px 0px 0px #8a2a21;
+            -webkit-box-shadow: 3px 4px 0px 0px #8a2a21;
+            box-shadow: 3px 4px 0px 0px #8a2a21;
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24437));
+            background:-moz-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+            background:-webkit-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+            background:-o-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+            background:-ms-linear-gradient(top, #c62d1f 5%, #f24437 100%);
+            background:linear-gradient(to bottom, #c62d1f 5%, #f24437 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24437',GradientType=0);
+            background-color:#c62d1f;
+            -moz-border-radius:18px;
+            -webkit-border-radius:18px;
+            border-radius:18px;
+            border:1px solid #d02718;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:17px;
+            padding:7px 25px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #810e05; 
+        }
+        .postfix:hover {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f24437), color-stop(1, #c62d1f));
+            background:-moz-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+            background:-webkit-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+            background:-o-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+            background:-ms-linear-gradient(top, #f24437 5%, #c62d1f 100%);
+            background:linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24437', endColorstr='#c62d1f',GradientType=0);
+            background-color:#f24437;
+            -webkit-animation-iteration-count: infinite;      
+           
+        }
+        .postfix:active {
+            position:relative;
+            top:1px;
+        }
 
-body{ 
-    width:100%;
-    height:100%;
-    background:url(images/background.jpg);
-    background-size:100% 100%;
-}
+        body{ 
+            width:100%;
+            height:100%;
+            background:url(images/background.jpg);
+            background-size:100% 100%;
+        }
 
-.bgm{
-    position:absolute; 
-    bottom:0; 
-    right:0;
-    width: 80px;
-    height:70px;
-    loop: true;
-}
-</style>
+        .bgm{
+            position:absolute; 
+            bottom:0; 
+            right:0;
+            width: 80px;
+            height:70px;
+            loop: true;
+        }
+
+        .list{
+            top: 100px;
+        }
+
+        .plus:hover{
+            -webkit-animation-iteration-count: infinite;      
+        }
+
+        .close-reveal-modal:hover{
+            -webkit-animation-iteration-count: infinite; 
+            color: #ffffff;     
+        }
+    </style>
 </head>
 <body>
 
-
- <div class="block" >
-     <div class="transparent"></div>
-<div id="console-block" class="row">
-
-    <div class="large-8 columns">
-        <h3>Rooms <a href="#" onclick="createRoom()">+</a></h3>
-        <ul id="room-list" class="large-block-grid-2">
-            <!-- dynamic -->
-        </ul>
-    </div>
-    <div class="large-4 columns">
-        <h3>Online Users <span id="user-count-label" class="label info round">0</span></h3>
-        <div id="user-list">
-            <!-- dynamic -->
-        </div>
-    </div>
-</div>
-
-<div id="game-block"style="display: none" width="60%" height="90%" text-align="center">
-    <div>
-        <a href="#" class="button alert" onclick="quitRoom()">Quit</a>
-    </div>
-    <div id="canvas-block" class="text-center">
-        <canvas id="game-canvas" width="400" height="400" style="box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, .2)">
-            <img src="images/cross.png" id="cross"/>
-        <img src="images/circle.png" id="circle" />
-        <img src="images/canvas.jpg" id="canvas" /></canvas>
-    </div>
-</div>
-
-<div id="signup-modal" class="reveal-modal" data-reveal aria-labelledby="Sign Up" aria-hidden="true" role="dialog">
-    <div class="animated pulse">
-         <img src="images/ttt.gif" ><style width: 20%; margin-bottom: 20px></style></div>
-   
-    <form id="signup-form" onsubmit="return false;">
-        <div class="row collapse postfix-round">
-            <div class="large-6 large-offset-3 columns">
-                <div class="row">
-                    <div class="small-9 columns">
-                        <input id="nickname-input" type="text" placeholder="Will Smiths">
-                    </div>
-                    <div class="small-3 columns">
-                        <a href="#" onclick="validateNickname()" id="enter-button" class="button postfix animated">Go</a>
-                    </div>
+    <div class="block">
+        <div class="transparent"></div>
+        <div id="console-block" class="row">
+            <div class="large-8 columns list">
+                <img src="images/rooms.png" />   
+                <a href="#" onclick="createRoom()"><img class="plus animated tada" src="images/plus.png" width="30px" height="30px"/></a>
+                <ul id="room-list" class="large-block-grid-2">
+                    <!-- dynamic -->
+                </ul>
+            </div>
+            <div class="large-4 columns list">
+                <img src="images/users.png"/>
+                <span id="user-count-label" class="label info round">0</span>
+                <div id="user-list">
+                <!-- dynamic -->
                 </div>
             </div>
         </div>
-        <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
-    </form>
-    <!-- admin entry -->
-    <div class="text-right">[<a id="admin-button" href="#" >admin entrance</a>]</div>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
 
-<div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1 style="color: #ffffff">You are the Winner!</h1>
-    <img src="images/happy.png" style="max-height: 70%; max-width: 70%" />
-    <audio src="win.mp3" autoplay></audio>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+        <div id="game-block"style="display: none" width="60%" height="90%" text-align="center">
+            <div>
+                <a href="#" class="button alert" onclick="quitRoom()">Quit</a>
+            </div>
+            <div id="canvas-block" class="text-center">
+                <canvas id="game-canvas" width="400" height="400" style="box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, .2)">
+                <img src="images/cross.png" id="cross"/>
+                <img src="images/circle.png" id="circle" />
+                <img src="images/canvas.jpg" id="canvas" /></canvas>
+            </div>
+        </div>
 
-<div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1 style="color: #ffffff">So sad, you lose!</h1>
-    <img src="images/sad.png" style="max-height: 70%; max-width: 70%" />
-    <audio src="lose.mp3" autoplay></audio>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
+        <div id="signup-modal" class="reveal-modal" data-reveal aria-labelledby="Sign Up" aria-hidden="true" role="dialog">
+            <div class="animated pulse">
+                <img src="images/ttt.gif" ><style width: 20%; margin-bottom: 20px></style></div>
+       
+            <form id="signup-form" onsubmit="return false;">
+                <div class="row collapse postfix-round">
+                    <div class="large-6 large-offset-3 columns">
+                        <div class="row">
+                            <div class="small-9 columns">
+                                <input id="nickname-input" type="text" placeholder="Will Smiths">
+                            </div>
+                            <div class="small-3 columns">
+                                <a href="#" onclick="validateNickname()" id="enter-button" class="button postfix animated rubberBand">Ready?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
+            </form>
 
-<div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
-    <h1>Password please</h1>
-    <input id="admin-password" type="password" />
-    <a id="admin-login-button" class="button" href="#">Go</a>
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
-</div>
+        <!-- admin entry -->
+            <div class="text-right">[<a id="admin-button" href="#" >admin entrance</a>]</div>
+            <a class="close-reveal-modal animated rotateIn" aria-label="Close">&#215;</a>
+        </div>
+
+        <div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+            <h1 style="color: #ffffff">You are the Winner!</h1>
+            <img src="images/happy.png" style="max-height: 70%; max-width: 70%" />  
+            <a class="close-reveal-modal animated rotateIn" aria-label="Close">&#215;</a>
+        </div>
+
+        <div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+            <h1 style="color: #ffffff">So sad, you lose!</h1>
+            <img src="images/sad.png" style="max-height: 70%; max-width: 70%" /> 
+            <a class="close-reveal-modal animated rotateIn" aria-label="Close">&#215;</a>
+        </div>
+
+        <div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
+            <h1 style="color: #ffffff">Password please</h1>
+            <input id="admin-password" type="password" />
+            <a id="admin-login-button" class="button postfix animated rubberBand" href="#" style="width: 100px">Ready?</a>
+            <a class="close-reveal-modal animated rotateIn" aria-label="Close">&#215;</a>
+        </div>
+    </div>
+
+<!-- Audio -->
+<EMBED class="bgm" src="bgm.mp3" autostart="true" type="audio/mpeg" loop="true" > </EMBED>
+<audio id="write"><source src="write.mp3" type="audio/mpeg"></source></audio>
+<audio id="ready"><source src="ready.mp3" type="audio/mpeg"></source></audio>
+<audio id="go"><source src="go.mp3" type="audio/mpeg"></source></audio>
+<audio id="win"><source src="win.mp3" type="audio/mpeg"></source></audio>
+<audio id="lose"><source src="lose.mp3" type="audio/mpeg"></source></audio>
 <!-- Templates -->
 <!-- room block template -->
-<EMBED class="bgm" src="bk.mp3" autostart="false" type="audio/mpeg" loop="true"  > </EMBED>
 <script id="room-template" type="text/template">
     <li >
         <a href="#"> 
@@ -236,8 +256,5 @@ body{
 <script src="js/user.js"></script>
 <!-- main script file -->
 <script src="js/game.js"></script>
-<script> $('.enter-button').click(function(){
-    var $this = $(this); 
-    $this.addClass('animated rotateIn');})</script>
 
 </html>
