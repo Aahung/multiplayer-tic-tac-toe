@@ -1,4 +1,6 @@
   // This is called with the results from from FB.getLoginStatus().
+  
+
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
     console.log(response);
@@ -8,18 +10,23 @@
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
       // Logged into your app and Facebook.
-      testAPI();
-    } else if (response.status === 'not_authorized') {
-      // The person is logged into Facebook, but not your app.
-      document.getElementById('status').innerHTML = 'Please log ' +
-        'into this app.';
+      /*testAPI(response);*/
+	  FB.api('/me', function(response) {
+		//validateNickname(response.name,response.id);
+
+	  sessionStorage.setItem("id",response.id.toString());
+	  sessionStorage.setItem("name",response.name.toString());
+      });
     } else {
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
-      document.getElementById('status').innerHTML = 'Please log ' +
-        'into Facebook.';
+	  if (sessionStorage.id!=undefined)
+		sessionStorage.removeItem("id");
+	  if (sessionStorage.name!=undefined)
+		sessionStorage.removeItem("name");
     }
   }
+ 
 
   // This function is called when someone finishes with the Login
   // Button.  See the onlogin handler attached to it in the sample
@@ -29,6 +36,7 @@
       statusChangeCallback(response);
     });
   }
+  
 
   window.fbAsyncInit = function() {
   FB.init({
@@ -36,7 +44,7 @@
     cookie     : true,  // enable cookies to allow the server to access 
                         // the session
     xfbml      : true,  // parse social plugins on this page
-    version    : 'v2.2' // use version 2.2
+    version    : 'v2.5' // use version 2.5
   });
 
   // Now that we've initialized the JavaScript SDK, we call 
@@ -56,6 +64,12 @@
   });
 
   };
+  
+  /*FB.logout(function(response) {
+        // Person is now logged out
+		localStorage.removeItem("name");
+		localStorage.removeItem("id");
+    });*/
 
   // Load the SDK asynchronously
   (function(d, s, id) {
@@ -68,12 +82,16 @@
 
   // Here we run a very simple test of the Graph API after login is
   // successful.  See statusChangeCallback() for when this call is made.
-  function testAPI() {
-    console.log('Welcome!  Fetching your information.... ');
-	facebooklogin(response.name);
+/* function testAPI(response) {
+    console.log('Welcome!');
+
     FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
+		//validateNickname(response.name,response.id);
+
+	  sessionStorage.setItem("id",response.id.toString());
+	  sessionStorage.setItem("name",response.name.toString());
+	  console.log('set');
     });
-  }
+  }*/
+  
+  
