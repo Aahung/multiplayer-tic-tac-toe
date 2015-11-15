@@ -276,8 +276,6 @@ function drawCanvas(ownerDots, playerDots) {
         var centerY = ( 2 * row) * c.height / 6.0; 
 
         var audio = document.getElementById("write"); 
-		
-		console.log('audio');
         audio.play();
         
         ctx.drawImage(document.getElementById('cross'), centerX, centerY, c.width / 3, c.height / 3);
