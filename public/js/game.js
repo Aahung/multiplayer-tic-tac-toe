@@ -186,10 +186,10 @@ function validateNickname() {
         var imageURL = undefined;
         if (_id == undefined){
             var nickname = $('#nickname-input').val();
-            imageURL = "http://graph.facebook.com/" + this.image + "/picture?type=square";
         }
         else{
             var nickname = _name;
+            imageURL = "http://graph.facebook.com/" + this.image + "/picture?type=square";
         }
          
         console.log('nickname: ' + nickname + ' got');
