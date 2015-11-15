@@ -189,7 +189,7 @@ function validateNickname() {
         }
         else{
             var nickname = _name;
-            imageURL = "http://graph.facebook.com/" + this.image + "/picture?type=square";
+            imageURL = "http://graph.facebook.com/" + _id + "/picture?type=square";
         }
          
         console.log('nickname: ' + nickname + ' got');
