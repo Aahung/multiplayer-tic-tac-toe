@@ -99,8 +99,7 @@ function onReceiveMessage(msg) {
                 audio.play();
 
             }
-            else if (msg.room.owner.nickname == _nickname && msg.game.result == 2
-                || msg.room.player.nickname == _nickname && msg.game.result == 2) {
+            else if (msg.game.result == 2) {
                 
                 $('#drawn-modal').foundation('reveal', 'open');
 

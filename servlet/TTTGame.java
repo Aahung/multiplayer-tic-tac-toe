@@ -7,8 +7,6 @@
 package ee4216;
 
 import java.util.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import org.json.simple.*;
 
 public class TTTGame {
@@ -23,7 +21,6 @@ public class TTTGame {
 	private int[][] _dots = new int[3][3];
 	static int OWNER_MARK = 1;
 	static int PLAYER_MARK = -1;
-    static int DRAWN_MARK = 2;
 
 	private int turn = OWNER_MARK; // owner first
 
@@ -32,15 +29,7 @@ public class TTTGame {
 
 	public TTTGame() {
 		reset();
-        playAudio();
 	}
-
-    private void playAudio(){
-      	String bip = "go.mp3";
-        Media hit = new Media(bip);
-        MediaPlayer mediaPlayer = new MediaPlayer(hit);
-        mediaPlayer.play();
-    }
 
 	public void setOnGameChangeListener(final TTTCallback onGameChangeListener) {
 		_onGameChangeListener = onGameChangeListener;
@@ -119,23 +108,12 @@ public class TTTGame {
 		}
 		return false;
 	}
-
-    private boolean checkDrawn(int dots[][]){
-        for(int i=0;i<dots.length;i++)
-            for(int j=0;j<dots[i].length;i++){
-                if(dots[i][j]!=1 && _dots[i][j]!=-1)
-                    continue;
-                else
-                    return false;
-            }
-        return true;
-        }
         
 	public int checkResult() {
 		if (checkResult(OWNER_MARK)) return OWNER_MARK;
 		else if (checkResult(PLAYER_MARK)) return PLAYER_MARK;
-		else if(checkDrawn(_dots)) return DRAWN_MARK;                   
-                return 0;
+		else if (getOwnerDots().length + getPlayerDots().length == 9) return 2;                 
+        return 0;
 	}
 
 	private boolean move(int mark, int dotIndex) {
