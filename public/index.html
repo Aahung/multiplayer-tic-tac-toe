@@ -120,6 +120,10 @@ h3 {
     text-shadow: 0px 0px 5px white;
 }
 
+.model-header {
+    text-shadow: 0px 0px 5px black;
+}
+
 #admin-button {
     color: white;
 }
@@ -182,18 +186,6 @@ h3 {
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
-<div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1>Winner is you!</h1>
-    <img src="images/happy.jpg" style="max-height: 70%; max-width: 70%" />
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
-
-<div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1>So sad, you lose!</h1>
-    <img src="images/sad.jpg" style="max-height: 70%; max-width: 70%" />
-    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
-</div>
-
 <div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
     <h1>Password please</h1>
     <input id="admin-password" type="password" />
@@ -202,14 +194,14 @@ h3 {
 </div>
 
 <div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1 style="color: #ffffff">You are the Winner!</h1>
+    <h1 class="model-header" style="color: #ffffff;">You are the Winner!</h1>
     <img src="images/happy.png" style="max-height: 70%; max-width: 70%" />
     <audio src="win.mp3" autoplay></audio>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
 <div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
-    <h1 style="color: #ffffff">So sad, you lose!</h1>
+    <h1 class="model-header" style="color: #ffffff;">So sad, you lose!</h1>
     <img src="images/sad.png" style="max-height: 70%; max-width: 70%" />
     <audio src="lose.mp3" autoplay></audio>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
