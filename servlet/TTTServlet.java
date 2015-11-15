@@ -255,6 +255,11 @@ public class TTTServlet extends WebSocketServlet{
                     // check if there is a same nickname
                     user = _gameConsole.addUser(nickname);
                     if (user != null) {
+                        Object imageURLObj = obj.get("image");
+                        if (imageURLObj != null) {
+                            String imageURL = obj.get("image").toString();
+                            user.setImageURL(imageURL);
+                        }
                         _userToTTTMIB.put(user, this);
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
                     } else {

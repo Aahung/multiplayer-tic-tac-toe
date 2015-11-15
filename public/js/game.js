@@ -77,10 +77,7 @@ function onReceiveMessage(msg) {
         $('#user-list').empty();
         for (var i = 0; i < msg.users.length; ++i) {
             var user = msg.users[i];
-			if (_id==undefined)
-				var u = new User(user.nickname, user.image, user.type);
-			else
-				var u=new User(user.nickname,_id,user.type);
+            var u = new User(user.nickname, user.image, user.type);
             u.draw($('#user-list')[0]);
         }
         $("#user-count-label").text(msg.users.length);
@@ -186,10 +183,10 @@ function validateNickname() {
 	setTimeout(function() {
         _id = sessionStorage.getItem("id");
         _name = sessionStorage.getItem("name");
-        console.log(_id);
-        console.log(_name);
+        var imageURL = undefined;
         if (_id == undefined){
             var nickname = $('#nickname-input').val();
+            imageURL = "http://graph.facebook.com/" + this.image + "/picture?type=square";
         }
         else{
             var nickname = _name;
@@ -218,6 +215,10 @@ function validateNickname() {
             "type": "init",
             "nickname": _nicknameCandidate
         };
+
+        if (imageURL) {
+            msg['image'] = imageURL;
+        }
 
         if (webSocketReady()) {
             webSocketSend(msg);
