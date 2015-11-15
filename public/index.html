@@ -116,8 +116,12 @@ body {
     loop: true;
 }
 
-h3, #admin-button {
+h3 {
     text-shadow: 0px 0px 5px white;
+}
+
+#admin-button {
+    color: white;
 }
 
 </style>
@@ -135,7 +139,7 @@ h3, #admin-button {
         </ul>
     </div>
     <div class="large-4 columns">
-        <h3>Online Users <span id="user-count-label" class="label info round">0</span></h3>
+        <h3>Online Users <span id="user-count-label" class="label secondary round">0</span></h3>
         <div id="user-list">
             <!-- dynamic -->
         </div>
