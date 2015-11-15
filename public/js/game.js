@@ -8,6 +8,8 @@
 */
 
 var _ws;
+var _id, _name; // facebook id and name
+
 
 function webSocketReady() {
     if (_ws && _ws.readyState == 1)
@@ -86,8 +88,16 @@ function onReceiveMessage(msg) {
             if (msg.room.owner.nickname == _nickname && msg.game.result == 1
                 || msg.room.player.nickname == _nickname && msg.game.result == -1) {
                 $('#win-modal').foundation('reveal', 'open');
+
+                 var audio = document.getElementById("win"); 
+                 audio.play();
+
             } else {
                 $('#lose-modal').foundation('reveal', 'open');
+
+                var audio = document.getElementById("lose"); 
+                audio.play();
+
             }
         }
     } else if (msg.type == "msg") {
@@ -99,6 +109,10 @@ function onReceiveMessage(msg) {
             // successfully registed the nickname
             _nickname = _nicknameCandidate;
             $('#signup-modal').foundation('reveal', 'close');
+
+             var audio = document.getElementById("ready"); 
+             audio.play();
+
         } else if (msg.command == "nickname_exist") {
             alert("This name is already been taken, sorry.");
         } else if (msg.command == "room_created") {
@@ -115,6 +129,8 @@ function onReceiveMessage(msg) {
         // start to handle admin methods
         else if (msg.command == "admin_authed") {
             $("#admin-login-modal").foundation('reveal', 'close');
+             var audio = document.getElementById("ready"); 
+             audio.play();
             __updateAdminControls();
         }
     }
@@ -131,6 +147,9 @@ function joinRoom(owner) {
     if (webSocketReady()) {
         webSocketSend(msg);
     }
+
+    var audio = document.getElementById("go"); 
+    audio.play();
 }
 
 function createRoom() {
@@ -158,42 +177,64 @@ function quitRoom() {
 }
 
 function validateNickname() {
-    var nickname = $('#nickname-input').val();
-    console.log('nickname: ' + nickname + ' got');
-    if (!nickname || nickname.length == 0) {
-        alert('Don\'t leave your nickname blank.');
-        return;
-    }
+	checkLoginState();
 
-    nickname = escape(nickname); // just in case
-
-    // save nickname into the browser if localstorage is available
-    if(typeof(Storage) !== "undefined") {
-        try {
-            localStorage.setItem('nickname', nickname);
-        } catch (e) {
-            console.log(e);
+    // set timeout in order to wait for facebook request
+	setTimeout(function() {
+        _id = sessionStorage.getItem("id");
+        _name = sessionStorage.getItem("name");
+        var imageURL = undefined;
+        if (_id == undefined){
+            var nickname = $('#nickname-input').val();
         }
-    }
+        else{
+            var nickname = _name;
+            imageURL = "http://graph.facebook.com/" + _id + "/picture?type=square";
+        }
+         
+        console.log('nickname: ' + nickname + ' got');
+        if (!nickname || nickname.length == 0) {
+            alert('Don\'t leave your nickname blank.');
+            return;
+        }
 
-    _nicknameCandidate = nickname;
-    // send to server to verify
-    var msg = {
-        "type": "init",
-        "nickname": _nicknameCandidate
-    };
+        //nickname = escape(nickname); // just in case
 
-    if (webSocketReady()) {
-        webSocketSend(msg);
-    }
+        // save nickname into the browser if localstorage is available
+        if(typeof(Storage) !== "undefined") {
+            try {
+                localStorage.setItem('nickname', nickname);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        _nicknameCandidate = nickname;
+        // send to server to verify
+        var msg = {
+            "type": "init",
+            "nickname": _nicknameCandidate
+        };
+
+        if (imageURL) {
+            msg['image'] = imageURL;
+        }
+
+        if (webSocketReady()) {
+            webSocketSend(msg);
+        }
+    }, 1000);
 }
+
 
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
     var ctx = c.getContext("2d");
+    var img = document.getElementById("canvas");
+    var pat = ctx.createPattern(img,"no-repeat");
+
     ctx.lineWidth = 2;
-    ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = pat;
     ctx.fillRect(0, 0, c.width, c.height);
 
     // draw grid
@@ -220,27 +261,25 @@ function drawCanvas(ownerDots, playerDots) {
     for (var i = 0; i < ownerDots.length; ++i) {
         var row = Math.floor(ownerDots[i] / 3);
         var col = ownerDots[i] - 3 * row;
-        var centerX = (1 + 2 * col) * c.width / 6.0;
-        var centerY = (1 + 2 * row) * c.height / 6.0;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, markRadius, 0, 2*Math.PI);
-        ctx.stroke();
+        var centerX = (2 * col) * c.width / 6.0;
+        var centerY = ( 2 * row) * c.height / 6.0; 
+
+        var audio = document.getElementById("write"); 
+    
+        ctx.drawImage(document.getElementById('circle'), centerX, centerY, c.width / 3, c.height / 3);
     }
 
     // draw the cross
     for (var i = 0; i < playerDots.length; ++i) {
         var row = Math.floor(playerDots[i] / 3);
         var col = playerDots[i] - 3 * row;
-        var centerX = (1 + 2 * col) * c.width / 6.0;
-        var centerY = (1 + 2 * row) * c.height / 6.0;
-        ctx.beginPath();
-        ctx.moveTo(centerX - markRadius, centerY - markRadius);
-        ctx.lineTo(centerX + markRadius, centerY + markRadius);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX + markRadius, centerY - markRadius);
-        ctx.lineTo(centerX - markRadius, centerY + markRadius);
-        ctx.stroke();
+        var centerX = (2 * col) * c.width / 6.0;
+        var centerY = ( 2 * row) * c.height / 6.0; 
+
+        var audio = document.getElementById("write"); 
+        audio.play();
+        
+        ctx.drawImage(document.getElementById('cross'), centerX, centerY, c.width / 3, c.height / 3);
     }
 }
 

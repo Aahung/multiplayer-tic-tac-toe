@@ -17,6 +17,10 @@ public class TTTUser {
 		WALKIN, FACEBOOK
 	}
 
+	public void setImageURL(String imageURL) {
+		_imageURL = imageURL;
+	}
+
 	public TTTUser(String nickname) {
 		_nickname = nickname;
 		_userType = UserType.WALKIN;
