@@ -191,9 +191,11 @@ function validateNickname() {
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
     var ctx = c.getContext("2d");
+    var img = document.getElementById("canvas");
+    var pat = ctx.createPattern(img,"no-repeat");
+
     ctx.lineWidth = 2;
-    ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = pat;
     ctx.fillRect(0, 0, c.width, c.height);
 
     // draw grid
@@ -220,27 +222,19 @@ function drawCanvas(ownerDots, playerDots) {
     for (var i = 0; i < ownerDots.length; ++i) {
         var row = Math.floor(ownerDots[i] / 3);
         var col = ownerDots[i] - 3 * row;
-        var centerX = (1 + 2 * col) * c.width / 6.0;
-        var centerY = (1 + 2 * row) * c.height / 6.0;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, markRadius, 0, 2*Math.PI);
-        ctx.stroke();
+        var centerX = (2 * col) * c.width / 6.0;
+        var centerY = ( 2 * row) * c.height / 6.0; 
+    
+        ctx.drawImage(document.getElementById('circle'), centerX, centerY, c.width / 3, c.height / 3);
     }
 
     // draw the cross
     for (var i = 0; i < playerDots.length; ++i) {
         var row = Math.floor(playerDots[i] / 3);
         var col = playerDots[i] - 3 * row;
-        var centerX = (1 + 2 * col) * c.width / 6.0;
-        var centerY = (1 + 2 * row) * c.height / 6.0;
-        ctx.beginPath();
-        ctx.moveTo(centerX - markRadius, centerY - markRadius);
-        ctx.lineTo(centerX + markRadius, centerY + markRadius);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX + markRadius, centerY - markRadius);
-        ctx.lineTo(centerX - markRadius, centerY + markRadius);
-        ctx.stroke();
+        var centerX = (2 * col) * c.width / 6.0;
+        var centerY = ( 2 * row) * c.height / 6.0; 
+        ctx.drawImage(document.getElementById('cross'), centerX, centerY, c.width / 3, c.height / 3);
     }
 }
 
