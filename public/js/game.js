@@ -8,6 +8,7 @@
 */
 
 var _ws;
+var _id,_name;
 
 function webSocketReady() {
     if (_ws && _ws.readyState == 1)
@@ -66,25 +67,32 @@ function onReceiveMessage(msg) {
         for (var i = 0; i < msg.rooms.length; ++i) {
             var room = msg.rooms[i];
             var r = new Room(room.waiting, room.owner);
-            if (!room.waiting) r.player = room.player;
+            if (room.player) r.setPlayer(room.player);
             r.draw($('#room-list')[0], joinRoom);
         }
+        __updateAdminControls();
     } else if (msg.type == "user") {
         // update users
         $('#user-list').empty();
         for (var i = 0; i < msg.users.length; ++i) {
             var user = msg.users[i];
-            var u = new User(user.nickname, user.image, user.type);
+			if (_id==undefined)
+				var u = new User(user.nickname, user.image, user.type);
+			else
+				var u=new User(user.nickname,_id,user.type);
             u.draw($('#user-list')[0]);
+			console.log(_id);
         }
+        $("#user-count-label").text(msg.users.length);
+        __updateAdminControls();
     } else if (msg.type == "the_game") {
         drawCanvas(msg.game.owner, msg.game.player);
         if (msg.game.result != 0) {
-            if (msg.room.owner == _nickname && msg.game.result == 1
-                || msg.room.player == _nickname && msg.game.result == -1) {
-                alert("You win!");
+            if (msg.room.owner.nickname == _nickname && msg.game.result == 1
+                || msg.room.player.nickname == _nickname && msg.game.result == -1) {
+                $('#win-modal').foundation('reveal', 'open');
             } else {
-                alert("You lose!");
+                $('#lose-modal').foundation('reveal', 'open');
             }
         }
     } else if (msg.type == "msg") {
@@ -93,7 +101,7 @@ function onReceiveMessage(msg) {
         console.log(msg.content);
     } else if (msg.type == "command") {
         if (msg.command == "nickname_reserved") {
-            // successfully registed the nickname
+            // successfully registered the nickname
             _nickname = _nicknameCandidate;
             $('#signup-modal').foundation('reveal', 'close');
         } else if (msg.command == "room_created") {
@@ -102,16 +110,25 @@ function onReceiveMessage(msg) {
             $('#game-block').fadeIn();
         } else if (msg.command == "room_quited") {
             $('#game-block').fadeOut();
+        } else if (msg.command == "kicked_game") {
+            _nickname = undefined;
+            $('#signup-modal').foundation('reveal', 'open');
+        }
+
+        // start to handle admin methods
+        else if (msg.command == "admin_authed") {
+            $("#admin-login-modal").foundation('reveal', 'close');
+            __updateAdminControls();
         }
     }
 }
 
-function joinRoom(ownerNickname) {
+function joinRoom(owner) {
     // send to server to join the room
     var msg = {
         "type": "command",
         "command": "join_room",
-        "owner": ownerNickname
+        "owner": owner.nickname
     };
 
     if (webSocketReady()) {
@@ -143,13 +160,29 @@ function quitRoom() {
     }
 }
 
-function validateNickname() {
-    var nickname = $('#nickname-input').val();
+function validateNickname(){
+	_name=undefined;
+	_id=undefined;
+	checkLoginState();
+	console.log('1');
+	_id=sessionStorage.getItem("id");
+	_name=sessionStorage.getItem("name");
+	if (_id==undefined){
+		var nickname = $('#nickname-input').val();
+		console.log('2');
+	}
+	else{
+		var nickname = _name;
+		console.log('3');
+	}
+	 
     console.log('nickname: ' + nickname + ' got');
     if (!nickname || nickname.length == 0) {
         alert('Don\'t leave your nickname blank.');
         return;
     }
+
+    //nickname = escape(nickname); // just in case
 
     // save nickname into the browser if localstorage is available
     if(typeof(Storage) !== "undefined") {
@@ -171,6 +204,49 @@ function validateNickname() {
         webSocketSend(msg);
     }
 }
+
+
+
+function validateNickname() {	
+	if (_id==undefined){
+		var nickname = $('#nickname-input').val();
+		console.log('2');
+	}
+	else{
+		var nickname = _name;
+		console.log('3');
+	}
+	 
+    console.log('nickname: ' + nickname + ' got');
+    if (!nickname || nickname.length == 0) {
+        alert('Don\'t leave your nickname blank.');
+        return;
+    }
+
+    //nickname = escape(nickname); // just in case
+
+    // save nickname into the browser if localstorage is available
+    if(typeof(Storage) !== "undefined") {
+        try {
+            localStorage.setItem('nickname', nickname);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    _nicknameCandidate = nickname;
+    // send to server to verify
+    var msg = {
+        "type": "init",
+        "nickname": _nicknameCandidate
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+
 
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
@@ -256,6 +332,57 @@ function onCanvasMouseUp(event) {
     }
 }
 
+/*
+    Admin
+    all admin functions start with __
+    to better distinguished from other functions
+*/
+
+function __updateAdminControls() {
+    if (_nickname == "__admin__") {
+        $(".admin-only").show();
+    } else {
+        $(".admin-only").hide();
+    }
+}
+
+function __validateAdminPassword() {
+    var password = $('#admin-password').val();
+    var msg = {
+        "type": "admin",
+        "command": "auth",
+        "password": password 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromConsole(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_console",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
+function __kickoutUserFromGame(nickname) {
+    var msg = {
+        "type": "admin",
+        "command": "kick_user_game",
+        "nickname": nickname 
+    };
+
+    if (webSocketReady()) {
+        webSocketSend(msg);
+    }
+}
+
 /* 
     initialization
 */
@@ -297,4 +424,20 @@ $(function() {
     // add listener to canvas
     var canvas = document.getElementById("game-canvas");
     canvas.addEventListener("mouseup", onCanvasMouseUp, false);
+
+    // admin
+    $('#admin-button').click(function() {
+        _nickname = "__admin__";
+        $('#admin-login-modal').foundation('reveal', 'open');
+        // focus on the input field
+        $('#admin-password').focus();
+    });
+
+    $('#admin-login-button').click(__validateAdminPassword);
+    $('#admin-password').keypress(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            __validateAdminPassword();
+        }
+    });
 });
