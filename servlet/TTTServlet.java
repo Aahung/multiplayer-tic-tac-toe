@@ -252,14 +252,14 @@ public class TTTServlet extends WebSocketServlet{
                 if (type.equals("init")) {
                     String nickname = obj.get("nickname").toString();
                     System.out.println("nickname: " + nickname);
-                    // check if there is a same nickname
-                    user = _gameConsole.addUser(nickname);
+                    Object imageURLObj = obj.get("image");
+                    if (imageURLObj != null) {
+                        String imageURL = obj.get("image").toString();
+                        user = _gameConsole.addUser(nickname, imageURL);
+                    } else {
+                        user = _gameConsole.addUser(nickname);
+                    }
                     if (user != null) {
-                        Object imageURLObj = obj.get("image");
-                        if (imageURLObj != null) {
-                            String imageURL = obj.get("image").toString();
-                            user.setImageURL(imageURL);
-                        }
                         _userToTTTMIB.put(user, this);
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_reserved\"}"));
                     } else {
