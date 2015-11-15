@@ -67,6 +67,18 @@ public class TTTConsole {
 		return null;
 	}
 
+	public TTTUser addUser(String nickname, String imageURL) {
+		if (searchUser(nickname) == null) {
+			TTTUser user = new TTTUser(nickname);
+			user.setImageURL(imageURL);
+			_users.add(user);
+			if (_onUserChangeListener != null)
+				_onUserChangeListener.call(this);
+			return user;
+		}
+		return null;
+	}
+
 	public void removeUser(TTTUser user) {
 		if (user == null) return;
 		_users.remove(user);

@@ -8,6 +8,8 @@
 */
 
 var _ws;
+var _id, _name; // facebook id and name
+
 
 function webSocketReady() {
     if (_ws && _ws.readyState == 1)
@@ -187,37 +189,55 @@ function quitRoom() {
 }
 
 function validateNickname() {
-    var nickname = $('#nickname-input').val();
-    console.log('nickname: ' + nickname + ' got');
-    if (!nickname || nickname.length == 0) {
-        alert('Don\'t leave your nickname blank.');
-        return;
-    }
+	checkLoginState();
 
-    nickname = escape(nickname); // just in case
-
-    // save nickname into the browser if localstorage is available
-    if(typeof(Storage) !== "undefined") {
-        try {
-            localStorage.setItem('nickname', nickname);
-        } catch (e) {
-            console.log(e);
+    // set timeout in order to wait for facebook request
+	setTimeout(function() {
+        _id = sessionStorage.getItem("id");
+        _name = sessionStorage.getItem("name");
+        var imageURL = undefined;
+        if (_id == undefined){
+            var nickname = $('#nickname-input').val();
         }
-    }
+        else{
+            var nickname = _name;
+            imageURL = "http://graph.facebook.com/" + _id + "/picture?type=square";
+        }
+         
+        console.log('nickname: ' + nickname + ' got');
+        if (!nickname || nickname.length == 0) {
+            alert('Don\'t leave your nickname blank.');
+            return;
+        }
 
-    _nicknameCandidate = nickname;
-    // send to server to verify
-    var msg = {
-        "type": "init",
-        "nickname": _nicknameCandidate
-    };
+        //nickname = escape(nickname); // just in case
 
-    if (webSocketReady()) {
-        webSocketSend(msg);
-    }
+        // save nickname into the browser if localstorage is available
+        if(typeof(Storage) !== "undefined") {
+            try {
+                localStorage.setItem('nickname', nickname);
+            } catch (e) {
+                console.log(e);
+            }
+        }
 
-    
+        _nicknameCandidate = nickname;
+        // send to server to verify
+        var msg = {
+            "type": "init",
+            "nickname": _nicknameCandidate
+        };
+
+        if (imageURL) {
+            msg['image'] = imageURL;
+        }
+
+        if (webSocketReady()) {
+            webSocketSend(msg);
+        }
+    }, 1000);
 }
+
 
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
