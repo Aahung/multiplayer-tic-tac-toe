@@ -86,8 +86,16 @@ function onReceiveMessage(msg) {
             if (msg.room.owner.nickname == _nickname && msg.game.result == 1
                 || msg.room.player.nickname == _nickname && msg.game.result == -1) {
                 $('#win-modal').foundation('reveal', 'open');
+
+                 var audio = document.getElementById("win"); 
+                 audio.play();
+
             } else {
                 $('#lose-modal').foundation('reveal', 'open');
+
+                var audio = document.getElementById("lose"); 
+                audio.play();
+
             }
         }
     } else if (msg.type == "msg") {
@@ -99,6 +107,10 @@ function onReceiveMessage(msg) {
             // successfully registed the nickname
             _nickname = _nicknameCandidate;
             $('#signup-modal').foundation('reveal', 'close');
+
+             var audio = document.getElementById("ready"); 
+             audio.play();
+
         } else if (msg.command == "nickname_exist") {
             alert("This name is already been taken, sorry.");
         } else if (msg.command == "room_created") {
@@ -115,6 +127,8 @@ function onReceiveMessage(msg) {
         // start to handle admin methods
         else if (msg.command == "admin_authed") {
             $("#admin-login-modal").foundation('reveal', 'close');
+             var audio = document.getElementById("ready"); 
+             audio.play();
             __updateAdminControls();
         }
     }
@@ -131,6 +145,9 @@ function joinRoom(owner) {
     if (webSocketReady()) {
         webSocketSend(msg);
     }
+
+    var audio = document.getElementById("go"); 
+    audio.play();
 }
 
 function createRoom() {
@@ -186,6 +203,8 @@ function validateNickname() {
     if (webSocketReady()) {
         webSocketSend(msg);
     }
+
+    
 }
 
 function drawCanvas(ownerDots, playerDots) {
@@ -224,6 +243,8 @@ function drawCanvas(ownerDots, playerDots) {
         var col = ownerDots[i] - 3 * row;
         var centerX = (2 * col) * c.width / 6.0;
         var centerY = ( 2 * row) * c.height / 6.0; 
+
+        var audio = document.getElementById("write"); 
     
         ctx.drawImage(document.getElementById('circle'), centerX, centerY, c.width / 3, c.height / 3);
     }
@@ -234,6 +255,10 @@ function drawCanvas(ownerDots, playerDots) {
         var col = playerDots[i] - 3 * row;
         var centerX = (2 * col) * c.width / 6.0;
         var centerY = ( 2 * row) * c.height / 6.0; 
+
+        var audio = document.getElementById("write"); 
+        audio.play();
+        
         ctx.drawImage(document.getElementById('cross'), centerX, centerY, c.width / 3, c.height / 3);
     }
 }
