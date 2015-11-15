@@ -92,12 +92,21 @@ function onReceiveMessage(msg) {
                  var audio = document.getElementById("win"); 
                  audio.play();
 
-            } else {
+            } 
+            else if (msg.room.owner.nickname == _nickname && msg.game.result == -1
+                || msg.room.player.nickname == _nickname && msg.game.result == 1) {
                 $('#lose-modal').foundation('reveal', 'open');
 
                 var audio = document.getElementById("lose"); 
                 audio.play();
 
+            }
+            else if (msg.game.result == 2) {
+                
+                $('#drawn-modal').foundation('reveal', 'open');
+
+                var audio = document.getElementById("lose"); 
+                audio.play();
             }
         }
     } else if (msg.type == "msg") {
@@ -162,6 +171,9 @@ function createRoom() {
     if (webSocketReady()) {
         webSocketSend(msg);
     }
+
+    var audio = document.getElementById("go"); 
+    audio.play();
 }
 
 function quitRoom() {

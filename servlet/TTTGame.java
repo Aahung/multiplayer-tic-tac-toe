@@ -108,11 +108,12 @@ public class TTTGame {
 		}
 		return false;
 	}
-
+        
 	public int checkResult() {
 		if (checkResult(OWNER_MARK)) return OWNER_MARK;
 		else if (checkResult(PLAYER_MARK)) return PLAYER_MARK;
-		else return 0;
+		else if (getOwnerDots().length + getPlayerDots().length == 9) return 2;                 
+        return 0;
 	}
 
 	private boolean move(int mark, int dotIndex) {
