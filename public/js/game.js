@@ -210,13 +210,11 @@ function validateNickname() {
 function drawCanvas(ownerDots, playerDots) {
     var c = document.getElementById("game-canvas");
     var ctx = c.getContext("2d");
-    var img=document.getElementById("canvas");
-    var pat=ctx.createPattern(img,"no-repeat");
+    var img = document.getElementById("canvas");
+    var pat = ctx.createPattern(img,"no-repeat");
 
     ctx.lineWidth = 2;
-   // ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle=pat;
-   // ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = pat;
     ctx.fillRect(0, 0, c.width, c.height);
 
     // draw grid
@@ -245,12 +243,10 @@ function drawCanvas(ownerDots, playerDots) {
         var col = ownerDots[i] - 3 * row;
         var centerX = (2 * col) * c.width / 6.0;
         var centerY = ( 2 * row) * c.height / 6.0; 
+
         var audio = document.getElementById("write"); 
-        ctx.drawImage(document.getElementById('circle'), centerX, centerY,c.width/3,c.height/3);
-        audio.play();
-      /* ctx.beginPath();
-        ctx.arc(centerX, centerY, markRadius, 0, 2*Math.PI);
-        ctx.stroke();*/
+    
+        ctx.drawImage(document.getElementById('circle'), centerX, centerY, c.width / 3, c.height / 3);
     }
 
     // draw the cross
@@ -259,17 +255,11 @@ function drawCanvas(ownerDots, playerDots) {
         var col = playerDots[i] - 3 * row;
         var centerX = (2 * col) * c.width / 6.0;
         var centerY = ( 2 * row) * c.height / 6.0; 
+
         var audio = document.getElementById("write"); 
-        ctx.drawImage(document.getElementById('cross'), centerX, centerY,c.width/3,c.height/3);
         audio.play();
-      /* ctx.beginPath();
-        ctx.moveTo(centerX - markRadius, centerY - markRadius);
-        ctx.lineTo(centerX + markRadius, centerY + markRadius);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX + markRadius, centerY - markRadius);
-        ctx.lineTo(centerX - markRadius, centerY + markRadius);
-        ctx.stroke();*/
+        
+        ctx.drawImage(document.getElementById('cross'), centerX, centerY, c.width / 3, c.height / 3);
     }
 }
 
