@@ -148,6 +148,30 @@ public class TTTServlet extends WebSocketServlet{
         broadcastMessage("{\"type\":\"msg\",\"level\":\"log\",\"content\":\"Server time " + timeStamp + ".\"}");
     }
 
+    private void quitRoom(TTTUser user) {
+        TTTRoom room = _gameConsole.getRoomByUser(user);
+
+        if (room != null) {
+            // notify another user in the room
+            TTTUser theOtherUser = null;
+            if (room.getOwner() == user) {
+                theOtherUser = room.getPlayer();
+            } else {
+                theOtherUser = room.getOwner();
+            }
+            TTTMessageInbound theOtherMessageInBound = _userToTTTMIB.get(theOtherUser);
+            if (theOtherMessageInBound != null) {
+                try {
+                    theOtherMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The other player quits.\"}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            _gameConsole.quitRoom(user, room);
+        }
+    }
+
     private JSONObject getUserListAsJSONObject() {
         JSONObject usersObj = new JSONObject();
         usersObj.put("type", "user");
@@ -164,9 +188,21 @@ public class TTTServlet extends WebSocketServlet{
         return usersObj;
     }
 
+    private String JSONMessage(String content, String level) {
+        JSONObject obj = new JSONObject();
+        
+        obj.put("type", "msg");
+        obj.put("level", level);
+        obj.put("content", content);
+
+        return obj.toString(); 
+    }
+
     private class TTTMessageInbound extends MessageInbound {
         WsOutbound myoutbound;
-        TTTUser user;
+        public TTTUser user;
+        private final static String _adminPassword = "eeee4216";
+        private boolean _isAdmin = false;
 
         @Override
         public void onOpen(WsOutbound outbound){
@@ -174,7 +210,7 @@ public class TTTServlet extends WebSocketServlet{
                 System.out.println("Open Client.");
                 this.myoutbound = outbound;
                 mmiList.add(this);
-                outbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"log\",\"content\":\"Hello!\"}"));
+                outbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Hello!", "log")));
 
                 // send the user list to him
                 outbound.writeTextMessage(CharBuffer.wrap(getUserListAsJSONObject().toString())); 
@@ -195,11 +231,13 @@ public class TTTServlet extends WebSocketServlet{
             else 
                 System.out.println(String.format("broadcasting to %s",
                                                  Integer.toHexString(System.identityHashCode(this))));
+            
+            mmiList.remove(this);
+            quitRoom(user); // try to quit any room the user is currently in
             TTTUser userToRemove = user;
             user = null;
             _gameConsole.removeUser(userToRemove);
             _userToTTTMIB.remove(userToRemove);
-            mmiList.remove(this);
         }
 
         @Override
@@ -223,46 +261,81 @@ public class TTTServlet extends WebSocketServlet{
                         myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"nickname_exist\"}"));
                     }
                 } else if (type.equals("command")) {
-                    String command = obj.get("command").toString();
-                    if (command.equals("create_room")) {
-                        // create room
-                        if (user != null) {
+                    if (user == null) {
+                        myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Sign up first.", "alert")));
+                    } else {
+                        String command = obj.get("command").toString();
+                        if (command.equals("create_room")) {
+                            // create room
                             if (!_gameConsole.createRoom(user)) {
-                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Please quit a room first.\"}"));
+                                myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Please quit a room first.", "alert")));
                             } else {
                                 broadcastMessage(getRoomListAsJSONObject().toString());
                                 myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_created\"}"));
                             }
-                        } else {
-                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Sign up first.\"}"));
-                        }
-                    } else if (command.equals("join_room")) {
-                        String ownerNickname = obj.get("owner").toString();
-                        TTTUser owner = _gameConsole.searchUser(ownerNickname);
-                        if (owner == null) {
-                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"No room with owner " + ownerNickname + ".\"}"));
-                        } else {
-                            TTTRoom room = _gameConsole.getRoomByOwner(owner);
-                            if (room == null) {
-                                myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"No room with owner " + ownerNickname + ".\"}"));
+                        } else if (command.equals("join_room")) {
+                            String ownerNickname = obj.get("owner").toString();
+                            TTTUser owner = _gameConsole.searchUser(ownerNickname);
+                            if (owner == null) {
+                                myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("No room with owner " + ownerNickname + ".", "alert")));
                             } else {
-                                if (_gameConsole.joinRoom(user, room)) {
-                                    myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_joined\"}"));
+                                TTTRoom room = _gameConsole.getRoomByOwner(owner);
+                                if (room == null) {
+                                    myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("No room with owner " + ownerNickname + ".", "alert")));
                                 } else {
-                                    myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"Cannot join the room.\"}"));
+                                    if (_gameConsole.joinRoom(user, room)) {
+                                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_joined\"}"));
+                                    } else {
+                                        myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Cannot join the room.", "alert")));
+                                    }
                                 }
                             }
+                        } else if (command.equals("quit_room")) {
+                            quitRoom(user);
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
+                        } else if (command.equals("move_game")) {
+                            int dotIndex = ((Long)obj.get("dot_index")).intValue();
+                            TTTRoom room = _gameConsole.getRoomByUser(user);
+                            if (!_gameConsole.moveGame(user, room, dotIndex))
+                                myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("The move is invalid.", "alert")));
+                        } 
+                    }
+                } else if (type.equals("admin")) {
+                    // admin methods
+                    String command = obj.get("command").toString();
+                    if (command.equals("auth")) {
+                        String password = obj.get("password").toString();
+                        if (password.equals(_adminPassword)) {
+                            _isAdmin = true;
+                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"admin_authed\"}"));
+                        } else {
+                            myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Password is invalid.", "alert")));
                         }
-                    } else if (command.equals("quit_room")) {
-                        TTTRoom room = _gameConsole.getRoomByUser(user);
-                        _gameConsole.quitRoom(user, room);
-                        myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
-                    } else if (command.equals("move_game")) {
-                        int dotIndex = ((Long)obj.get("dot_index")).intValue();
-                        TTTRoom room = _gameConsole.getRoomByUser(user);
-                        if (!_gameConsole.moveGame(user, room, dotIndex))
-                            myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"msg\",\"level\":\"alert\",\"content\":\"The move is invalid.\"}"));
-                    } 
+                    } else {
+                        if (_isAdmin) {
+                            if (command.equals("kick_user_console") || command.equals("kick_user_game")) {
+                                String nickname = obj.get("nickname").toString();
+                                TTTUser theUser = _gameConsole.searchUser(nickname);
+                                if (theUser != null) {
+                                    TTTMessageInbound theMessageInBound = _userToTTTMIB.get(theUser);
+                                    if (command.equals("kick_user_console")) {
+                                        theMessageInBound.user = null;
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("You are kicked out by admin.", "alert")));
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"kicked_game\"}"));
+                                        _userToTTTMIB.remove(theUser);
+                                        _gameConsole.removeUser(theUser);
+                                    } else if (command.equals("kick_user_game")) {
+                                        TTTRoom theRoom = _gameConsole.getRoomByUser(theUser);
+                                        _gameConsole.quitRoom(theUser, theRoom);
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("You are kicked out from the room by admin.", "alert")));
+                                        theMessageInBound.myoutbound.writeTextMessage(CharBuffer.wrap("{\"type\":\"command\",\"command\":\"room_quited\"}"));
+                                    }
+                                }
+                            }
+                        } else {
+                            myoutbound.writeTextMessage(CharBuffer.wrap(JSONMessage("Unauthorized.", "alert")));
+                        }
+                    }
                 }
                 
             } catch (ParseException e) {

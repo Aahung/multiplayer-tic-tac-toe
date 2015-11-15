@@ -7,7 +7,7 @@ function User(nickname, image, type) {
     this.nickname = nickname;
     this.image = image;
     if (!this.image) this.image = "images/profile-icon-50.png";
-	else this.image="http://graph.facebook.com/"+this.image+"/picture?type=square";
+	else this.image = "http://graph.facebook.com/" + this.image + "/picture?type=square";
     this.type = type;
 }
 

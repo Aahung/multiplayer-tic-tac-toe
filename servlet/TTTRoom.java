@@ -54,9 +54,9 @@ public class TTTRoom {
 		JSONObject obj = new JSONObject();
 		
 		obj.put("waiting", _state == State.WAITING);
-		obj.put("owner", _owner.getNickname());
+		obj.put("owner", _owner.toJSONObject());
 		if (_player != null)
-			obj.put("player", _player.getNickname());
+			obj.put("player", _player.toJSONObject());
 
 		return obj;
 	}
@@ -113,5 +113,6 @@ public class TTTRoom {
 		}
 		if (_onRoomStateChangeListener != null)
 			_onRoomStateChangeListener.call(this);
+		_game.reset();
 	}
 }

@@ -28,9 +28,7 @@ public class TTTGame {
 	private TTTCallback _onGameChangeListener;
 
 	public TTTGame() {
-		for (int i = 0; i < 3; ++i)
-			for (int j = 0; j < 3; ++j)
-				_dots[i][j] = 0;
+		reset();
 	}
 
 	public void setOnGameChangeListener(final TTTCallback onGameChangeListener) {
@@ -135,5 +133,14 @@ public class TTTGame {
 
 	public boolean playerMove(int dotIndex) {
 		return move(PLAYER_MARK, dotIndex);
+	}
+
+	public void reset() {
+		for (int i = 0; i < 3; ++i)
+			for (int j = 0; j < 3; ++j)
+				_dots[i][j] = 0;
+		turn = OWNER_MARK;
+		if (_onGameChangeListener != null)
+			_onGameChangeListener.call(this);
 	}
 }
