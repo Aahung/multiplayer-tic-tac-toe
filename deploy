@@ -2,3 +2,8 @@
 
 echo 'moving client codes to tomcat webapp folder'
 cp -r public/* /var/lib/tomcat7/webapps/ROOT/
+
+echo 'deploy servlet'
+cd servlet
+./build
+cd ..

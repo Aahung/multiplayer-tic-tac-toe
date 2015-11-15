@@ -119,10 +119,9 @@ body{
 <body>
 
 
- <div class="block" >
-     <div class="transparent"></div>
+<div class="block" >
+    <div class="transparent"></div>
 <div id="console-block" class="row">
-
     <div class="large-8 columns">
         <h3>Rooms <a href="#" onclick="createRoom()">+</a></h3>
         <ul id="room-list" class="large-block-grid-2">
@@ -169,7 +168,26 @@ body{
         <p class="lead text-center">Make yourself a nickname, please be <u>unique</u>.</p>
     </form>
     <!-- admin entry -->
-    <div class="text-right">[<a id="admin-button" href="#" >admin entrance</a>]</div>
+    <div class="text-center">[<a id="admin-button" href="#">admin entrance</a>]</div>
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="win-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+    <h1>Winner is you!</h1>
+    <img src="images/happy.jpg" style="max-height: 70%; max-width: 70%" />
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="lose-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Game Result" aria-hidden="true" role="dialog">
+    <h1>So sad, you lose!</h1>
+    <img src="images/sad.jpg" style="max-height: 70%; max-width: 70%" />
+    <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+</div>
+
+<div id="admin-login-modal" class="reveal-modal text-center" data-reveal aria-labelledby="Admin" aria-hidden="true" role="dialog">
+    <h1>Password please</h1>
+    <input id="admin-password" type="password" />
+    <a id="admin-login-button" class="button" href="#">Go</a>
     <a class="close-reveal-modal" aria-label="Close">&#215;</a>
 </div>
 
@@ -198,7 +216,7 @@ body{
 <!-- room block template -->
 <EMBED class="bgm" src="bk.mp3" autostart="false" type="audio/mpeg" loop="true"  > </EMBED>
 <script id="room-template" type="text/template">
-    <li >
+    <li>
         <a href="#"> 
             
             <div class="room-panel panel {{? it.waiting }} callout {{?}} radius text-center">
