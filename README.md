@@ -1,5 +1,12 @@
 # Multiplayer Tic Tac Toe
 
+A web app using WebSocket to enable multiplayer tic tac toe. 
+
+## Requirement
+
+- Java JRE/JDK 7 (not 8)
+- Tomcat 7 (not 8)
+
 ## Deploy on Linux
 
 As simple as ABC :-0
